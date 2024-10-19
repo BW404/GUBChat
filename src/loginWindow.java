@@ -17,7 +17,7 @@ public class loginWindow extends JFrame {
     private final JTextField usernameField;
     private final JPasswordField passwordField;
     private final JButton loginButton; // Fixed typo in variable name
-    private JButton signupButton;
+    private final JButton signupButton;
 
     // Constructor
     public loginWindow() {
@@ -102,10 +102,10 @@ public class loginWindow extends JFrame {
         signupButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Close the signup window
+                // Close the login window
                 dispose();
                 // Open the signup window
-                new signupWindow(); // Assuming you have a SignupWindow class
+                new signupWindow(); 
             }
         });
 
@@ -120,7 +120,7 @@ public class loginWindow extends JFrame {
                     // Close the login window
                     dispose();
                     // Open the chat window
-                    new chatWindow(); // Assuming you have a ChatWindow class
+                    new chatWindow();
                 } else {
                     // Show an error message
                     JOptionPane.showMessageDialog(loginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);

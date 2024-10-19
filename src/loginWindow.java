@@ -25,6 +25,7 @@ public class loginWindow extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 500);
         this.getContentPane().setBackground(new Color(0X26272D));
+        this.setResizable(false);
         System.out.println("Login Window");
         this.setLayout(null);
         setLocationRelativeTo(null);

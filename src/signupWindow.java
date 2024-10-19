@@ -22,6 +22,7 @@ public class signupWindow extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 500);
         this.setLayout(null);
+        this.setResizable(false);
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(new Color(0X1C1D22));
 

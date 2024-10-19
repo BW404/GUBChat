@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -14,6 +16,7 @@ public class loginWindow extends JFrame {
     private final JTextField usernameField;
     private final JPasswordField passwordField;
     private final JButton loginButnButton;
+    private final JButton signupButton;
     // Constructor
     public loginWindow() {  
         this.setTitle("GUB Chat Login"); 
@@ -26,7 +29,7 @@ public class loginWindow extends JFrame {
 
         // gub logo
         JLabel gubLabel = new JLabel(new ImageIcon("src\\img\\gub_logo.png"));
-        gubLabel.setBounds(100, 15, 200, 100);
+        gubLabel.setBounds(100, 15, 200, 100); 
         this.add(gubLabel);
 
         // Gub Chat login label
@@ -80,6 +83,32 @@ public class loginWindow extends JFrame {
         loginButnButton.setBackground(new Color(0X40a366));
         loginButnButton.setFocusPainted(false);
         this.add(loginButnButton);
+
+
+
+        // "Don't have an account? Signup" Button
+        signupButton = new JButton("Don't have an account? SignUp");
+        signupButton.setBounds(100, 400, 200, 30);
+        signupButton.setFont(new Font("Comic Sans MS", Font.PLAIN, 12));
+        signupButton.setBorder(BorderFactory.createEmptyBorder());
+        signupButton.setForeground(Color.WHITE);
+        signupButton.setBackground(new Color(0X26272D));
+        signupButton.setFocusPainted(false);
+        this.add(signupButton);
+
+        // Add ActionListener to the login button
+        signupButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Close the signup window
+                dispose();
+                // Open the login window
+                new signupWindow();
+            }
+        });
+
+
+
 
 
 

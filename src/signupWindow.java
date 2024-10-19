@@ -31,8 +31,8 @@ public class signupWindow extends JFrame {
         this.add(gubLabel);
 
         // Gub Chat login label
-        JLabel loginLabel = new JLabel("GUB Chat Login");
-        loginLabel.setBounds(125, 110, 200, 50);
+        JLabel loginLabel = new JLabel("GUB Chat SignUp");
+        loginLabel.setBounds(120, 110, 200, 50);
         loginLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
         loginLabel.setForeground(Color.WHITE);
         this.add(loginLabel);
@@ -87,8 +87,9 @@ public class signupWindow extends JFrame {
         loginButton = new JButton("Already have an account? Login");
         loginButton.setBounds(100, 400, 200, 30);
         loginButton.setFont(new Font("Comic Sans MS", Font.PLAIN, 12));
+        loginButton.setBorder(BorderFactory.createEmptyBorder());
         loginButton.setForeground(Color.WHITE);
-        loginButton.setBackground(new Color(0X2D9CDB));
+        loginButton.setBackground(new Color(0X1C1D22));
         loginButton.setFocusPainted(false);
         this.add(loginButton);
 

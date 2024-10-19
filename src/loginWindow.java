@@ -11,9 +11,9 @@ import javax.swing.border.EmptyBorder;
 
 public class loginWindow extends JFrame {
     // Declare the components
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButnButton;
+    private final JTextField usernameField;
+    private final JPasswordField passwordField;
+    private final JButton loginButnButton;
     // Constructor
     public loginWindow() {  
         this.setTitle("GUB Chat Login"); 

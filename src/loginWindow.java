@@ -133,10 +133,12 @@ public class loginWindow extends JFrame {
     }
 
     private boolean authenticate(String username, String password) {
+        // Replace this with your actual authentication logic
+        // TODO: Authenticate the user
+        // TODO: It should connect ot teh server and check if the username and password are valid
+
         return username.equals("taj") && password.equals("pass") || username.equals("admin") && password.equals("admin");
     }
 
-    // public static void main(String[] args) {
-    //     new loginWindow();
-    // }
+
 }

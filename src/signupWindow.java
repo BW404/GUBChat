@@ -112,13 +112,6 @@ public class signupWindow extends JFrame {
             }
         });
 
-
-
-
-
-
-
-
         // Add ActionListener to the login button
         loginButton.addActionListener(new ActionListener() {
             @Override

@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -13,6 +15,7 @@ public class signupWindow extends JFrame {
     private final JTextField usernameField;
     private final JPasswordField passwordField;
     private final JButton signupButton;
+    private final JButton loginButton;
 
     public signupWindow() {
         this.setTitle("GUB Chat Signup");
@@ -79,6 +82,26 @@ public class signupWindow extends JFrame {
         signupButton.setFocusPainted(false);
         this.add(signupButton);
 
+
+        // "Already have an account? Login" Button
+        loginButton = new JButton("Already have an account? Login");
+        loginButton.setBounds(100, 400, 200, 30);
+        loginButton.setFont(new Font("Comic Sans MS", Font.PLAIN, 12));
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setBackground(new Color(0X2D9CDB));
+        loginButton.setFocusPainted(false);
+        this.add(loginButton);
+
+        // Add ActionListener to the login button
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Close the signup window
+                dispose();
+                // Open the login window
+                new loginWindow();
+            }
+        });
 
         // Revalidate and repaint the frame
         this.revalidate();

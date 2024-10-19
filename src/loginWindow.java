@@ -10,9 +10,11 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 public class loginWindow extends JFrame {
+    // Declare the components
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButnButton;
+    // Constructor
     public loginWindow() {  
         this.setTitle("GUB Chat Login"); 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,7 +53,6 @@ public class loginWindow extends JFrame {
         usernameField.setBackground(new Color(0X1C1D22));
         usernameField.setCaretColor(Color.WHITE);
         this.add(usernameField);
-
 
         // Password Label
         JLabel passwordLabel = new JLabel("Password:");

@@ -7,6 +7,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -15,21 +16,22 @@ public class loginWindow extends JFrame {
     // Declare the components
     private final JTextField usernameField;
     private final JPasswordField passwordField;
-    private final JButton loginButnButton;
-    private final JButton signupButton;
+    private final JButton loginButton; // Fixed typo in variable name
+    private JButton signupButton;
+
     // Constructor
-    public loginWindow() {  
-        this.setTitle("GUB Chat Login"); 
+    public loginWindow() {
+        this.setTitle("GUB Chat Login");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 500);
-        this.setVisible(true);
-        this.getContentPane().setBackground(new Color(0X26272D));System.out.println("Login Window");
+        this.getContentPane().setBackground(new Color(0X26272D));
+        System.out.println("Login Window");
         this.setLayout(null);
         setLocationRelativeTo(null);
 
-        // gub logo
-        JLabel gubLabel = new JLabel(new ImageIcon("src\\img\\gub_logo.png"));
-        gubLabel.setBounds(100, 15, 200, 100); 
+        // GUB logo
+        JLabel gubLabel = new JLabel(new ImageIcon("src/img/gub_logo.png"));
+        gubLabel.setBounds(100, 15, 200, 100);
         this.add(gubLabel);
 
         // Gub Chat login label
@@ -40,18 +42,18 @@ public class loginWindow extends JFrame {
         this.add(loginLabel);
 
         // Username Label
-        JLabel usernamLabel = new JLabel("Username:");
-        usernamLabel.setBounds(150, 150, 300, 50);
-        usernamLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
-        usernamLabel.setForeground(Color.WHITE);
-        this.add(usernamLabel);
+        JLabel usernameLabel = new JLabel("Username:"); // Fixed typo in variable name
+        usernameLabel.setBounds(150, 150, 300, 50);
+        usernameLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        usernameLabel.setForeground(Color.WHITE);
+        this.add(usernameLabel);
 
         // Username Field
         usernameField = new JTextField();
         usernameField.setBounds(100, 200, 200, 30);
         usernameField.setFont(new Font("Dubai Bold", Font.PLAIN, 14));
         usernameField.setBorder(BorderFactory.createCompoundBorder(
-        usernameField.getBorder(), new EmptyBorder(5, 10, 5, 10) ));    
+                usernameField.getBorder(), new EmptyBorder(5, 10, 5, 10)));
         usernameField.setForeground(Color.WHITE);
         usernameField.setBackground(new Color(0X1C1D22));
         usernameField.setCaretColor(Color.WHITE);
@@ -69,22 +71,20 @@ public class loginWindow extends JFrame {
         passwordField.setBounds(100, 275, 200, 30);
         passwordField.setFont(new Font("Dubai Bold", Font.PLAIN, 20));
         passwordField.setBorder(BorderFactory.createCompoundBorder(
-        passwordField.getBorder(), new EmptyBorder(5, 10, 5, 10) ));
+                passwordField.getBorder(), new EmptyBorder(5, 10, 5, 10)));
         passwordField.setForeground(Color.WHITE);
         passwordField.setBackground(new Color(0X1C1D22));
         passwordField.setCaretColor(Color.WHITE);
         this.add(passwordField);
 
         // Login Button
-        loginButnButton = new JButton("Login");
-        loginButnButton.setBounds(100, 330, 200, 30);
-        loginButnButton.setFont(new Font("Comic Sans MS Bold", Font.PLAIN, 16));
-        loginButnButton.setForeground(Color.WHITE);
-        loginButnButton.setBackground(new Color(0X40a366));
-        loginButnButton.setFocusPainted(false);
-        this.add(loginButnButton);
-
-
+        loginButton = new JButton("Login"); // Fixed variable name
+        loginButton.setBounds(100, 330, 200, 30);
+        loginButton.setFont(new Font("Comic Sans MS Bold", Font.PLAIN, 16));
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setBackground(new Color(0X40a366));
+        loginButton.setFocusPainted(false);
+        this.add(loginButton);
 
         // "Don't have an account? Signup" Button
         signupButton = new JButton("Don't have an account? SignUp");
@@ -96,28 +96,45 @@ public class loginWindow extends JFrame {
         signupButton.setFocusPainted(false);
         this.add(signupButton);
 
-        // Add ActionListener to the login button
+        // Add ActionListener to the signup button
         signupButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Close the signup window
                 dispose();
-                // Open the login window
-                new signupWindow();
+                // Open the signup window
+                new signupWindow(); // Assuming you have a SignupWindow class
             }
         });
 
+        // Add ActionListener to the login button
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Authenticate the user
+                String enteredUsername = usernameField.getText();
+                String enteredPassword = new String(passwordField.getPassword());
+                if (authenticate(enteredUsername, enteredPassword)) {
+                    // Close the login window
+                    dispose();
+                    // Open the chat window
+                    new chatWindow(); // Assuming you have a ChatWindow class
+                } else {
+                    // Show an error message
+                    JOptionPane.showMessageDialog(loginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
-
-
-
-
-        // Revalidate and repaint to update the layout
-        this.revalidate();
-        this.repaint();
-    
         // Make the frame visible after adding components
         this.setVisible(true);
-
     }
+
+    private boolean authenticate(String username, String password) {
+        return username.equals("taj") && password.equals("pass") || username.equals("admin") && password.equals("admin");
+    }
+
+    // public static void main(String[] args) {
+    //     new loginWindow();
+    // }
 }

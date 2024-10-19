@@ -19,6 +19,7 @@ public class signupWindow extends JFrame {
 
     public signupWindow() {
         this.setTitle("GUB Chat Signup");
+        this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage()); 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 500);
         this.setLayout(null);

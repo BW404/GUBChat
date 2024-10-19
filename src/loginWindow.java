@@ -22,6 +22,7 @@ public class loginWindow extends JFrame {
     // Constructor
     public loginWindow() {
         this.setTitle("GUB Chat Login");
+        this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage()); 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 500);
         this.getContentPane().setBackground(new Color(0X26272D));

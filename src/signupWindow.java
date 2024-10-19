@@ -95,6 +95,30 @@ public class signupWindow extends JFrame {
         loginButton.setFocusPainted(false);
         this.add(loginButton);
 
+
+       // Add ActionListener to the login button
+        signupButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Authenticate the user
+                String enteredUsername = usernameField.getText();
+                String enteredPassword = new String(passwordField.getPassword());
+                // TODO: Add username and password in the databse 
+                // TODO: Check if the username already exists
+                // TODO: If the username already exists, show a message dialog "Username already exists"
+                // TODO: If the username doesn't exist, add the user to the database and show a message dialog "Signup successful"
+                // TODO: If the username and password are valid, close the signup window and open the login window
+                // TODO: If the username and password are invalid, show a message dialog "Invalid username or password"
+            }
+        });
+
+
+
+
+
+
+
+
         // Add ActionListener to the login button
         loginButton.addActionListener(new ActionListener() {
             @Override

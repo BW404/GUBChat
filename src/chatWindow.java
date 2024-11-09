@@ -1,97 +1,176 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.geom.Ellipse2D;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-public class chatWindow extends JFrame {
-    public chatWindow() {
-         
-        this.setTitle("GUB Chat");
-        this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage()); 
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setResizable(false);
-        this.setSize(964, 637);
-        this.setVisible(true);
-        this.getContentPane().setBackground(new Color(0X141416));
-        this.setLayout(null);
-        setLocationRelativeTo(null);
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.*;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
-        // contacts panel
-        JPanel contactsPanel = new JPanel();
-        contactsPanel.setBounds(0, 0, 320, 637);
-        contactsPanel.setBackground(new Color(0X2A2C33));
-        // add contacts panel to main window
-        this.add(contactsPanel);
+public class ChatWindow extends JFrame {
 
-        // devider panel
-        JPanel deviderPanel = new JPanel();
-        deviderPanel.setBounds(320, 0, 2, 637);
-        deviderPanel.setBackground(new Color(0X37393C));
-        // add devider panel to main window
-        this.add(deviderPanel);
+    private JList<String> contactList;
+    private DefaultListModel<String> contactListModel;
+    private JTextPane messageArea;
+    private JTextField writeMessageField;
 
-        // profile picture panel
-        JPanel profilePicturePanel = new JPanel();
-        profilePicturePanel.setBounds(345, 6, 50, 50);
-        profilePicturePanel.setBackground(Color.WHITE);
-        // add profile picture panel to main window
-        this.add(profilePicturePanel);
+    public ChatWindow() {
+        setTitle("Chat Application");
+        setSize(1200, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setLocationRelativeTo(null);  // Center the window
 
-        // Name Panel
-        JPanel namePanel = new JPanel();
-        namePanel.setBounds(320, 0, 644, 64);
-        namePanel.setBackground(new Color(0X2A2C33));
-        // add name panel to main window
-        this.add(namePanel);
+        // Left Section: Contact List
+        JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(new Color(0x26272D)); // Light grey background
+        leftPanel.setLayout(new BorderLayout());
+        leftPanel.setPreferredSize(new Dimension(300, getHeight()));
 
+        // Search Bar
+        JPanel searchPanel = new JPanel();
+        searchPanel.setBackground(new Color(0x26272D));
+        searchPanel.setLayout(new BorderLayout());
+        searchPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // chat panel
-        JPanel chatPanel = new JPanel();
-        chatPanel.setBounds(320, 0, 644, 637);
-        chatPanel.setBackground(new Color(0X141416));
-        // add chat panel to main window
-        this.add(chatPanel);
+        JTextField searchField = new JTextField();
+        searchField.setPreferredSize(new Dimension(200, 30));
+        searchField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        searchField.setFont(new Font("Arial", Font.PLAIN, 14));
+        searchField.setBackground(new Color(0xF0F0F0));
+        searchField.setForeground(Color.BLACK);
+        searchField.setText("Search");
+        searchPanel.add(searchField, BorderLayout.CENTER);
 
+        leftPanel.add(searchPanel, BorderLayout.NORTH);
 
+        // Contact List
+        contactListModel = new DefaultListModel<>();
+        contactListModel.addElement("John Doe");
+        contactListModel.addElement("Jane Smith");
+        contactListModel.addElement("Alice Johnson");
+        contactList = new JList<>(contactListModel);
+        contactList.setBackground(new Color(0x1C1D22));
+        contactList.setForeground(Color.WHITE);
+        contactList.setSelectionBackground(new Color(0xD0D0D0));
+        contactList.setSelectionForeground(Color.WHITE);
+        contactList.setFont(new Font("Arial", Font.PLAIN, 14));
 
+        // Set a custom cell renderer for the contact list
+        contactList.setCellRenderer(new CustomListCellRenderer());
 
-        class RoundedPanel extends JPanel {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-    
-                // Enable anti-aliasing for smoother edges
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    
-                // Create a circular shape to draw the panel
-                Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, getWidth(), getHeight());
-    
-                // Set the clipping shape
-                g2.setClip(circle);
-    
-                // Fill the background with the component's background color
-                g2.setColor(getBackground());
-                g2.fill(circle);
-    
-                g2.dispose();
-            }
+        JScrollPane contactScrollPane = new JScrollPane(contactList);
+        leftPanel.add(contactScrollPane, BorderLayout.CENTER);
+
+        add(leftPanel, BorderLayout.WEST);
+
+        // Right Section: Chat Area
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BorderLayout());
+        rightPanel.setBackground(new Color(0x1C1D22));
+        rightPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Chat Header
+        JPanel chatHeader = new JPanel();
+        chatHeader.setBackground(new Color(0x1C1D22));
+        chatHeader.setLayout(new BorderLayout());
+        chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
+        chatHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JLabel chatHeaderLabel = new JLabel("Chat with John Doe"); // Replace with actual header content
+        chatHeaderLabel.setForeground(Color.WHITE);
+        chatHeaderLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        chatHeader.add(chatHeaderLabel, BorderLayout.CENTER);
+        rightPanel.add(chatHeader, BorderLayout.NORTH);
+
+        // Message Area
+        messageArea = new JTextPane();
+        messageArea.setContentType("text/html");
+        messageArea.setEditable(false);
+        messageArea.setBackground(new Color(0x141416));
+        messageArea.setForeground(Color.WHITE);
+        messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        JScrollPane messageScrollPane = new JScrollPane(messageArea);
+        rightPanel.add(messageScrollPane, BorderLayout.CENTER);
+
+        // Add some dummy chat messages
+        appendMessage("John Doe", "Hi there!", false); // This line should be on the left
+        appendMessage("You", "Hello! How are you?", true); // This line should be on the right
+        appendMessage("John Doe", "I'm good, thanks! How about you?", false);
+        appendMessage("You", "I'm doing well, thank you.", true);
+
+        // Message Input Field
+        JPanel messageInputPanel = new JPanel();
+        messageInputPanel.setLayout(new BorderLayout());
+        messageInputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        messageInputPanel.setBackground(new Color(0x26272D));
+
+        writeMessageField = new JTextField();
+        writeMessageField.setPreferredSize(new Dimension(200, 30));
+        writeMessageField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        writeMessageField.setFont(new Font("Arial", Font.PLAIN, 14));
+        writeMessageField.setBackground(new Color(0xE0E0E0));
+        writeMessageField.setForeground(Color.BLACK);
+        messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
+
+        JButton sendButton = new JButton(new ImageIcon("src\\img\\send.png")); // Replace with your icon path
+        sendButton.setBackground(new Color(0x128C7E));
+        sendButton.setForeground(Color.WHITE);
+        sendButton.setFont(new Font("Arial", Font.BOLD, 14));
+        messageInputPanel.add(sendButton, BorderLayout.EAST);
+
+        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
+
+        add(rightPanel, BorderLayout.CENTER);
+    }
+
+    public void appendMessage(String sender, String message, boolean isUser) {
+        String alignment = isUser ? "right" : "left";
+        String formattedMessage = String.format("<div style='text-align: %s; color: white;'>%s: %s</div>", alignment, sender, message);
+        try {
+            Document doc = messageArea.getDocument();
+            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
+            kit.insertHTML((HTMLDocument) doc, doc.getLength(), formattedMessage, 0, 0, null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-
-
-
-
-
-
-
     }
 
 
+// Custom List Cell Renderer
+class CustomListCellRenderer extends DefaultListCellRenderer {
+    @Override
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        label.setOpaque(true); // Make sure the label is opaque to show the background color
+
+        // Add padding
+        // label.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // 10 pixels padding top and bottom, 20 pixels left and right
+
+        // Set background color based on selection state
+        if (isSelected) {
+            label.setBackground(new Color(0xD0D0D0)); // Background color for selected items
+            label.setForeground(Color.BLACK); // Set text color for selected items
+        } else {
+            label.setBackground(new Color(0x2C2D32)); // Background color for non-selected items
+            label.setForeground(Color.WHITE); // Set text color for non-selected items
+        }
+
+        // Set a visible border
+        label.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.GRAY, 1), // Outer border
+            BorderFactory.createEmptyBorder(20, 30, 20, 5) // Inner padding
+        ));
+        label.setHorizontalAlignment(SwingConstants.LEFT);
+
+        return label;
+    }
+}
 
 
-
+    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            ChatWindow chatWindow = new ChatWindow();
+            chatWindow.setVisible(true);
+        });
+    }
 }

@@ -90,13 +90,13 @@ public class ChatWindow extends JFrame {
         messageArea.setEditable(false);
         messageArea.setBackground(new Color(0x141416));
         messageArea.setForeground(Color.WHITE);
-        messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        messageArea.setFont(new Font("Arial", Font.PLAIN, 18));
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 
         // Add some dummy chat messages
-        appendMessage("John Doe", "Hi there!", false, Color.LIGHT_GRAY); // This line should be on the left
-        appendMessage("You", "Hello! How are you?", true, Color.CYAN); // This line should be on the right
+        appendMessage("John Doe", "Hi there!", false, Color.LIGHT_GRAY); 
+        appendMessage("You", "Hello! How are you?", true, Color.CYAN); 
         appendMessage("John Doe", "I'm good, thanks! How about you?", false, Color.LIGHT_GRAY);
         appendMessage("You", "I'm doing well, thank you.", true, Color.CYAN);
 
@@ -124,15 +124,14 @@ public class ChatWindow extends JFrame {
 
         add(rightPanel, BorderLayout.CENTER);
     }
-    
     private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
         String alignment = isRight ? "right" : "left";
         String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
-        
+    
         String htmlMessage = String.format(
             "<div style='text-align: %s; margin: 5px;'>"
-            + "<div style='background-color: %s; padding: 10px 15px; border-radius: 10px; display: inline-block; max-width: 70%%; margin-%s: 10px;'>"
-            + "<b>%s:</b> %s</div></div>",
+            + "<p style='background-color: %s; padding: 5px 15px; display: inline-block; max-width: 50%%; margin-%s: 150px;'>"
+            + "<b>%s:</b> %s</p></div>",
             alignment, colorHex, isRight ? "left" : "right", sender, message
         );
     

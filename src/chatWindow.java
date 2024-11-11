@@ -60,6 +60,7 @@ public class ChatWindow extends JFrame {
         // Set a custom cell renderer for the contact list
         contactList.setCellRenderer(new CustomListCellRenderer());
 
+        // Add the contact list to a scroll pane
         JScrollPane contactScrollPane = new JScrollPane(contactList);
         leftPanel.add(contactScrollPane, BorderLayout.CENTER);
 

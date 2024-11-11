@@ -4,6 +4,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.*;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import java.awt.Color;
+
+
 
 public class ChatWindow extends JFrame {
 
@@ -132,6 +135,7 @@ public class ChatWindow extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // messageComponent.setBackground(backgroundColor); // Removed as messageComponent is not defined
     }
 
 

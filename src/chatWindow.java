@@ -1,7 +1,6 @@
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.*;
 
 
 
@@ -131,13 +130,13 @@ public class ChatWindow extends JFrame {
             + "<b>%s:</b> %s</div>",
             alignment, colorHex, sender, message
         );
+    
+        // Get the existing content and append the new message
+        String existingContent = messageArea.getText();
+        String newContent = existingContent + htmlMessage;
         
-        try {
-            Document doc = messageArea.getDocument();
-            doc.insertString(doc.getLength(), htmlMessage, null);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
+        // Set the new content
+        messageArea.setText(newContent);
     }
 
 

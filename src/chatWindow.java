@@ -114,7 +114,7 @@ public class ChatWindow extends JFrame {
         writeMessageField.setForeground(Color.BLACK);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
 
-        JButton sendButton = new JButton(new ImageIcon("src\\img\\send.png")); // Replace with your icon path
+        JButton sendButton = new JButton(new ImageIcon("src\\img\\send.png"));
         sendButton.setBackground(new Color(0x128C7E));
         sendButton.setForeground(Color.WHITE);
         sendButton.setFont(new Font("Arial", Font.BOLD, 14));

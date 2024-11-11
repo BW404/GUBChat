@@ -80,7 +80,7 @@ public class ChatWindow extends JFrame {
 
         JLabel chatHeaderLabel = new JLabel("Chat with John Doe"); // Replace with actual header content
         chatHeaderLabel.setForeground(Color.WHITE);
-        chatHeaderLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        chatHeaderLabel.setFont(new Font("Roboto", Font.BOLD, 16));
         chatHeader.add(chatHeaderLabel, BorderLayout.CENTER);
         rightPanel.add(chatHeader, BorderLayout.NORTH);
 
@@ -90,7 +90,7 @@ public class ChatWindow extends JFrame {
         messageArea.setEditable(false);
         messageArea.setBackground(new Color(0x141416));
         messageArea.setForeground(Color.WHITE);
-        messageArea.setFont(new Font("Arial", Font.PLAIN, 18));
+        messageArea.setFont(new Font("Lucida Handwriting", Font.PLAIN, 18));
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 

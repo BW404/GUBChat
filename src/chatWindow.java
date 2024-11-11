@@ -2,9 +2,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.*;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import java.awt.Color;
 
 
 
@@ -95,10 +92,10 @@ public class ChatWindow extends JFrame {
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 
         // Add some dummy chat messages
-        appendMessage("John Doe", "Hi there!", false); // This line should be on the left
-        appendMessage("You", "Hello! How are you?", true); // This line should be on the right
-        appendMessage("John Doe", "I'm good, thanks! How about you?", false);
-        appendMessage("You", "I'm doing well, thank you.", true);
+        appendMessage("John Doe", "Hi there!", false, Color.LIGHT_GRAY); // This line should be on the left
+        appendMessage("You", "Hello! How are you?", true, Color.CYAN); // This line should be on the right
+        appendMessage("John Doe", "I'm good, thanks! How about you?", false, Color.LIGHT_GRAY);
+        appendMessage("You", "I'm doing well, thank you.", true, Color.CYAN);
 
         // Message Input Field
         JPanel messageInputPanel = new JPanel();
@@ -125,17 +122,22 @@ public class ChatWindow extends JFrame {
         add(rightPanel, BorderLayout.CENTER);
     }
 
-    public void appendMessage(String sender, String message, boolean isUser) {
-        String alignment = isUser ? "right" : "left";
-        String formattedMessage = String.format("<div style='text-align: %s; color: white;'>%s: %s</div>", alignment, sender, message);
+    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
+        String alignment = isRight ? "right" : "left";
+        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
+        
+        String htmlMessage = String.format(
+            "<div style='text-align: %s; background-color: %s; padding: 5px; margin: 5px; border-radius: 10px;'>"
+            + "<b>%s:</b> %s</div>",
+            alignment, colorHex, sender, message
+        );
+        
         try {
             Document doc = messageArea.getDocument();
-            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
-            kit.insertHTML((HTMLDocument) doc, doc.getLength(), formattedMessage, 0, 0, null);
-        } catch (Exception e) {
+            doc.insertString(doc.getLength(), htmlMessage, null);
+        } catch (BadLocationException e) {
             e.printStackTrace();
         }
-        // messageComponent.setBackground(backgroundColor); // Removed as messageComponent is not defined
     }
 
 

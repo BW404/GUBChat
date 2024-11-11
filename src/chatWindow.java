@@ -152,8 +152,6 @@ class CustomListCellRenderer extends DefaultListCellRenderer {
         JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         label.setOpaque(true); // Make sure the label is opaque to show the background color
 
-        // Add padding
-        // label.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // 10 pixels padding top and bottom, 20 pixels left and right
 
         // Set background color based on selection state
         if (isSelected) {

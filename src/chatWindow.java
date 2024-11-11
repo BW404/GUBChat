@@ -1,6 +1,10 @@
 import java.awt.*;
+import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 
 
@@ -121,7 +125,7 @@ public class ChatWindow extends JFrame {
         add(rightPanel, BorderLayout.CENTER);
     }
 
-    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
+private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
         String alignment = isRight ? "right" : "left";
         String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
         
@@ -130,13 +134,14 @@ public class ChatWindow extends JFrame {
             + "<b>%s:</b> %s</div>",
             alignment, colorHex, sender, message
         );
-    
-        // Get the existing content and append the new message
-        String existingContent = messageArea.getText();
-        String newContent = existingContent + htmlMessage;
-        
-        // Set the new content
-        messageArea.setText(newContent);
+
+        try {
+            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
+            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
+            kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
+        } catch (BadLocationException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

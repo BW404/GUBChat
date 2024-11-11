@@ -78,7 +78,7 @@ public class ChatWindow extends JFrame {
         chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
         chatHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel chatHeaderLabel = new JLabel("Chat with John Doe"); // Replace with actual header content
+        JLabel chatHeaderLabel = new JLabel("Chat with John Doe"); // Rshould get the name from the chat name
         chatHeaderLabel.setForeground(Color.WHITE);
         chatHeaderLabel.setFont(new Font("Roboto", Font.BOLD, 16));
         chatHeader.add(chatHeaderLabel, BorderLayout.CENTER);

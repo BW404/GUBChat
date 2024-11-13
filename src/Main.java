@@ -3,8 +3,8 @@ public class Main {
         
         // signupWindow signupWindow = new signupWindow();
         @SuppressWarnings("unused")
-        // loginWindow LoginWindow = new loginWindow();
-        ChatWindow ChatWindow=  new ChatWindow();
+        loginWindow LoginWindow = new loginWindow();
+        // ChatWindow ChatWindow=  new ChatWindow();
 
 
     }

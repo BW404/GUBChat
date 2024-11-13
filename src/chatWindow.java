@@ -96,10 +96,10 @@ public class ChatWindow extends JFrame {
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 
         // Add some dummy chat messages
-        appendMessage("John Doe", "Hi there!", false); 
-        appendMessage("You", "Hello! How are you?", true); 
-        appendMessage("John Doe", "I'm good, thanks! How about you?", false);
-        appendMessage("You", "I'm doing well, thank you.", true);
+        appendMessage("John Doe", "Hi there!", false, Color.LIGHT_GRAY); 
+        appendMessage("You", "Hello! How are you?", true, Color.CYAN); 
+        appendMessage("John Doe", "I'm good, thanks! How about you?", false, Color.LIGHT_GRAY);
+        appendMessage("You", "I'm doing well, thank you.", true, Color.CYAN);
 
         // Message Input Field
         JPanel messageInputPanel = new JPanel();
@@ -125,9 +125,9 @@ public class ChatWindow extends JFrame {
 
         add(rightPanel, BorderLayout.CENTER);
     }
-    private void appendMessage(String sender, String message, boolean isRight) {
+    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
         String alignment = isRight ? "right" : "left";
-        String colorHex = "#9F33FF"; // Set the message background color to #9F33FF
+        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
     
         String htmlMessage = String.format(
             "<div style='text-align: %s; margin: 5px;'>"

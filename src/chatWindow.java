@@ -1,10 +1,39 @@
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+
+
+
+class ChatBubblePanel extends JPanel {
+    private String message;
+    private Color backgroundColor;
+
+    public ChatBubblePanel(String message, Color backgroundColor) {
+        this.message = message;
+        this.backgroundColor = backgroundColor;
+        setOpaque(false); // Make the panel transparent
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setColor(backgroundColor);
+        g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15)); // Rounded rectangle
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(message, 10, 20); // Draw the message
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(200, 50); // Set a preferred size for the bubble
+    }
+}
 
 
 
@@ -95,11 +124,15 @@ public class ChatWindow extends JFrame {
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 
+        //Red and Blue are the colors of the chat bubbles
+        Color red = new Color(0xFF6070);
+        Color blue = new Color(0x168AFF);
+
         // Add some dummy chat messages
-        appendMessage("John Doe", "Hi there!", false, Color.LIGHT_GRAY); 
-        appendMessage("You", "Hello! How are you?", true, Color.CYAN); 
-        appendMessage("John Doe", "I'm good, thanks! How about you?", false, Color.LIGHT_GRAY);
-        appendMessage("You", "I'm doing well, thank you.", true, Color.CYAN);
+        appendMessage("John Doe", "Hi there!", false, red); 
+        appendMessage("You", "Hello! How are you?", true, blue); 
+        appendMessage("John Doe", "I'm good, thanks! How about you?", false, red);
+        appendMessage("You", "I'm doing well, thank you.", true, blue);
 
         // Message Input Field
         JPanel messageInputPanel = new JPanel();
@@ -131,7 +164,7 @@ public class ChatWindow extends JFrame {
     
         String htmlMessage = String.format(
             "<div style='text-align: %s; margin: 5px;'>"
-            + "<p style='background-color: %s; padding: 5px 15px; display: inline-block; max-width: 50%%; margin-%s: 150px;'>"
+            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin-%s: 150px; border-radius: 15px;'>"
             + "<b>%s:</b> %s</p></div>",
             alignment, colorHex, isRight ? "left" : "right", sender, message
         );

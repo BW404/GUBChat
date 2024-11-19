@@ -3,8 +3,10 @@ import java.net.*;
 import java.util.Scanner;
 
 public class ChatClient {
-    private static final String SERVER_ADDRESS = "jalaluddintaj-58689.portmap.io";
-    private static final int PORT = 58689;
+    // private static final String SERVER_ADDRESS = "jalaluddintaj-58689.portmap.io";
+    // private static final int PORT = 58689;
+    private static final String SERVER_ADDRESS = "192.168.0.103";
+    private static final int PORT = 5000;
 
     public static void main(String[] args) {
         try (Socket socket = new Socket(SERVER_ADDRESS, PORT)) {

@@ -7,8 +7,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
-
-
 class ChatBubblePanel extends JPanel {
     private String message;
     private Color backgroundColor;
@@ -34,8 +32,6 @@ class ChatBubblePanel extends JPanel {
         return new Dimension(200, 50); // Set a preferred size for the bubble
     }
 }
-
-
 
 public class ChatWindow extends JFrame {
 
@@ -108,7 +104,7 @@ public class ChatWindow extends JFrame {
         chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
         chatHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel chatHeaderLabel = new JLabel("Chat with John Doe"); // Rshould get the name from the chat name
+        JLabel chatHeaderLabel = new JLabel("Chat with John Doe"); // Should get the name from the chat name
         chatHeaderLabel.setForeground(Color.WHITE);
         chatHeaderLabel.setFont(new Font("Roboto", Font.BOLD, 16));
         chatHeader.add(chatHeaderLabel, BorderLayout.CENTER);
@@ -124,7 +120,7 @@ public class ChatWindow extends JFrame {
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 
-        //Red and Blue are the colors of the chat bubbles
+        // Red and Blue are the colors of the chat bubbles
         Color red = new Color(0xFF6070);
         Color blue = new Color(0x168AFF);
 
@@ -148,7 +144,7 @@ public class ChatWindow extends JFrame {
         writeMessageField.setForeground(Color.BLACK);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
 
-        JButton sendButton = new JButton(new ImageIcon("src\\img\\send.png")); //send button icon
+        JButton sendButton = new JButton(new ImageIcon("src/img/send.png")); // send button icon
         sendButton.setBackground(new Color(0x128C7E));
         sendButton.setForeground(Color.WHITE);
         sendButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -158,57 +154,54 @@ public class ChatWindow extends JFrame {
 
         add(rightPanel, BorderLayout.CENTER);
     }
+
     private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
         String alignment = isRight ? "right" : "left";
         String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
     
         String htmlMessage = String.format(
             "<div style='text-align: %s; margin: 5px;'>"
-            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin-%s: 150px; border-radius: 15px;'>"
+            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px;'>"
             + "<b>%s:</b> %s</p></div>",
-            alignment, colorHex, isRight ? "left" : "right", sender, message
-        );
+            alignment, colorHex, sender, message
+        );  
     
         try {
             HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
             HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
             kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
         } catch (BadLocationException | IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error appending message: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // Custom List Cell Renderer
+    class CustomListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setOpaque(true); // Make sure the label is opaque to show the background color
 
-// Custom List Cell Renderer
-class CustomListCellRenderer extends DefaultListCellRenderer {
-    @Override
-    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        label.setOpaque(true); // Make sure the label is opaque to show the background color
+            // Set background color based on selection state
+            if (isSelected) {
+                label.setBackground(new Color(0xD0D0D0)); // Background color for selected items
+                label.setForeground(Color.BLACK); // Set text color for selected items
+            } else {
+                label.setBackground(new Color(0x2C2D32)); // Background color for non-selected items
+                label.setForeground(Color.WHITE); // Set text color for non-selected items
+            }
 
+            // Set a visible border
+            label.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1), // Outer border
+                BorderFactory.createEmptyBorder(20, 30, 20, 5) // Inner padding
+            ));
+            label.setHorizontalAlignment(SwingConstants.LEFT);
 
-        // Set background color based on selection state
-        if (isSelected) {
-            label.setBackground(new Color(0xD0D0D0)); // Background color for selected items
-            label.setForeground(Color.BLACK); // Set text color for selected items
-        } else {
-            label.setBackground(new Color(0x2C2D32)); // Background color for non-selected items
-            label.setForeground(Color.WHITE); // Set text color for non-selected items
+            return label;
         }
-
-        // Set a visible border
-        label.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.GRAY, 1), // Outer border
-            BorderFactory.createEmptyBorder(20, 30, 20, 5) // Inner padding
-        ));
-        label.setHorizontalAlignment(SwingConstants.LEFT);
-
-        return label;
     }
-}
 
-
-    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             ChatWindow chatWindow = new ChatWindow();

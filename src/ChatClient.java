@@ -3,22 +3,59 @@ import java.net.*;
 import java.util.Scanner;
 
 public class ChatClient {
-    private static final String SERVER_ADDRESS = "jalaluddintaj-58689.portmap.io";
-    private static final int PORT = 58689;
-    // private static final String SERVER_ADDRESS = "192.168.0.103";
-    // private static final int PORT = 5000;
+    private static final String SERVER_ADDRESS = "127.0.0.1";
+    private static final int PORT = 5000;
 
     public static void main(String[] args) {
         try (Socket socket = new Socket(SERVER_ADDRESS, PORT)) {
             System.out.println("Connected to the chat server.");
 
-            Thread readThread = new Thread(new ReadHandler(socket));
-            Thread writeThread = new Thread(new WriteHandler(socket));
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+
+            Thread readThread = new Thread(() -> {
+                try {
+                    Object message;
+                    while ((message = in.readObject()) != null) {
+                        if (message instanceof String) {
+                            System.out.println((String) message);
+                        } else if (message instanceof FileWrapper) {
+                            saveFile((FileWrapper) message);
+                        }
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    System.out.println("Connection closed.");
+                }
+            });
+
+            Thread writeThread = new Thread(() -> {
+                Scanner scanner = new Scanner(System.in);
+                try {
+                    System.out.println((String) in.readObject());
+                    String username = scanner.nextLine();
+                    out.writeObject(username);
+
+                    while (true) {
+                        String input = scanner.nextLine();
+                        if (input.startsWith("/sendfile")) {
+                            String[] parts = input.split(" ", 3);
+                            if (parts.length == 3) {
+                                sendFile(parts[1], parts[2], out);
+                            } else {
+                                System.out.println("Usage: /sendfile recipient filepath");
+                            }
+                        } else {
+                            out.writeObject(input);
+                        }
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            });
 
             readThread.start();
             writeThread.start();
 
-            // Wait for threads to finish before exiting
             readThread.join();
             writeThread.join();
         } catch (IOException | InterruptedException e) {
@@ -26,92 +63,30 @@ public class ChatClient {
         }
     }
 
-    static class ReadHandler implements Runnable {
-        private Socket socket;
-        private BufferedReader in;
-
-        public ReadHandler(Socket socket) {
-            this.socket = socket;
-            try {
-                this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            } catch (IOException e) {
-                System.out.println("Error initializing input stream: " + e.getMessage());
+    private static void sendFile(String recipient, String filepath, ObjectOutputStream out) {
+        try {
+            File file = new File(filepath);
+            byte[] content = new byte[(int) file.length()];
+            try (FileInputStream fis = new FileInputStream(file)) {
+                fis.read(content);
             }
-        }
-
-        @Override
-        public void run() {
-            try {
-                String message;
-                while ((message = in.readLine()) != null) {
-                    System.out.println(message);
-                }
-            } catch (IOException e) {
-                System.out.println("Connection closed: " + e.getMessage());
-            } finally {
-                closeResources();
-            }
-        }
-
-        private void closeResources() {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                if (!socket.isClosed()) {
-                    socket.close();
-                }
-            } catch (IOException e) {
-                System.out.println("Error closing resources: " + e.getMessage());
-            }
+            FileWrapper fileWrapper = new FileWrapper(recipient, file.getName(), content);
+            out.writeObject(fileWrapper);
+            System.out.println("File sent to " + recipient);
+        } catch (IOException e) {
+            System.out.println("Error sending file: " + e.getMessage());
         }
     }
 
-    static class WriteHandler implements Runnable {
-        private Socket socket;
-        private PrintWriter out;
-        private Scanner scanner;
-
-        public WriteHandler(Socket socket) {
-            this.socket = socket;
-            try {
-                this.out = new PrintWriter(socket.getOutputStream(), true);
-                this.scanner = new Scanner(System.in);
-            } catch (IOException e) {
-                System.out.println("Error initializing output stream: " + e.getMessage());
+    private static void saveFile(FileWrapper fileWrapper) {
+        try {
+            File file = new File("received_" + fileWrapper.getFilename());
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(fileWrapper.getContent());
             }
-        }
-
-        @Override
-        public void run() {
-            try {
-                while (true) {
-                    String message = scanner.nextLine();
-                    if (message.equalsIgnoreCase("/quit")) {
-                        out.println("Client has disconnected.");
-                        break;
-                    }
-                    out.println(message);
-                }
-            } finally {
-                closeResources();
-            }
-        }
-
-        private void closeResources() {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-                if (!socket.isClosed()) {
-                    socket.close();
-                }
-                if (scanner != null) {
-                    scanner.close();
-                }
-            } catch (IOException e) {
-                System.out.println("Error closing resources: " + e.getMessage());
-            }
+            System.out.println("File received: " + file.getName());
+        } catch (IOException e) {
+            System.out.println("Error saving file: " + e.getMessage());
         }
     }
 }

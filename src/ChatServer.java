@@ -13,8 +13,6 @@ public class ChatServer {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket.getInetAddress());
-
-                // Start a new thread for the connected client
                 new Thread(new ClientHandler(clientSocket)).start();
             }
         } catch (IOException e) {
@@ -36,8 +34,8 @@ public class ChatServer {
 
     static class ClientHandler implements Runnable {
         private Socket socket;
-        private PrintWriter out;
-        private BufferedReader in;
+        private ObjectOutputStream out;
+        private ObjectInputStream in;
         private String username;
 
         public ClientHandler(Socket socket) {
@@ -47,42 +45,29 @@ public class ChatServer {
         @Override
         public void run() {
             try {
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out = new PrintWriter(socket.getOutputStream(), true);
+                in = new ObjectInputStream(socket.getInputStream());
+                out = new ObjectOutputStream(socket.getOutputStream());
 
-                // Register the user
-                out.println("Enter your username:");
-                username = in.readLine();
+                // Register user
+                out.writeObject("Enter your username:");
+                username = (String) in.readObject();
                 ChatServer.addClient(username, this);
-
-                out.println("Welcome " + username + "! You can start private chats by typing '@username message'.");
                 System.out.println(username + " has joined.");
+                out.writeObject("Welcome " + username + "! Use '@username message' to chat privately.");
 
-                String message;
-                while ((message = in.readLine()) != null) {
-                    if (message.startsWith("@")) {
-                        // Private message
-                        int spaceIndex = message.indexOf(" ");
-                        if (spaceIndex > 0) {
-                            String targetUsername = message.substring(1, spaceIndex);
-                            String privateMessage = message.substring(spaceIndex + 1);
-
-                            ClientHandler targetHandler = ChatServer.getClientHandler(targetUsername);
-                            if (targetHandler != null) {
-                                targetHandler.sendMessage("Private from " + username + ": " + privateMessage);
-                            } else {
-                                out.println("User " + targetUsername + " is not online.");
-                            }
+                Object message;
+                while ((message = in.readObject()) != null) {
+                    if (message instanceof String) {
+                        String textMessage = (String) message;
+                        if (textMessage.startsWith("@")) {
+                            handlePrivateMessage(textMessage);
                         }
-                    } else if (message.startsWith("/file")) {
-                        // File attachment
-                        out.println("File transfer is not yet implemented.");
-                    } else {
-                        out.println("Invalid command. Use '@username message' for private chats.");
+                    } else if (message instanceof FileWrapper) {
+                        handleFile((FileWrapper) message);
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("Connection with " + username + " lost.");
             } finally {
                 ChatServer.removeClient(username);
                 try {
@@ -94,8 +79,35 @@ public class ChatServer {
             }
         }
 
-        public void sendMessage(String message) {
-            out.println(message);
+        private void handlePrivateMessage(String textMessage) throws IOException {
+            int spaceIndex = textMessage.indexOf(" ");
+            if (spaceIndex > 0) {
+                String targetUsername = textMessage.substring(1, spaceIndex);
+                String privateMessage = textMessage.substring(spaceIndex + 1);
+                ClientHandler targetHandler = ChatServer.getClientHandler(targetUsername);
+                if (targetHandler != null) {
+                    targetHandler.sendMessage("Private from " + username + ": " + privateMessage);
+                } else {
+                    out.writeObject("User " + targetUsername + " is not online.");
+                }
+            }
+        }
+
+        private void handleFile(FileWrapper fileWrapper) throws IOException {
+            ClientHandler targetHandler = ChatServer.getClientHandler(fileWrapper.getRecipient());
+            if (targetHandler != null) {
+                targetHandler.sendFile(fileWrapper);
+            } else {
+                out.writeObject("User " + fileWrapper.getRecipient() + " is not online.");
+            }
+        }
+
+        public void sendMessage(String message) throws IOException {
+            out.writeObject(message);
+        }
+
+        public void sendFile(FileWrapper fileWrapper) throws IOException {
+            out.writeObject(fileWrapper);
         }
     }
 }

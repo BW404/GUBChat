@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.Scanner;
 
 public class ChatClient {
-    private static final String SERVER_ADDRESS = "jalauddintaj-58689.portmap.io";
+    private static final String SERVER_ADDRESS = "jalaluddintaj-58689.portmap.io";
     private static final int PORT = 58689;
 
     public static void main(String[] args) {

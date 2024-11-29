@@ -27,7 +27,7 @@ public class loginWindow extends JFrame {
         this.setSize(400, 500);
         this.getContentPane().setBackground(new Color(0X26272D));
         this.setResizable(false);
-        System.out.println("Login Window");
+        System.out.println("Login Window created"); // Debugging output
         this.setLayout(null);
         setLocationRelativeTo(null);
 

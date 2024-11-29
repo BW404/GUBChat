@@ -38,81 +38,26 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
         // Chat Header
         JPanel chatHeader = new JPanel();
-        getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
-
-        // Left Section: Contact List
-        JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(new Color(0x26272D));
-        leftPanel.setLayout(new BorderLayout());
-        leftPanel.setPreferredSize(new Dimension(300, getHeight()));
-        leftPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 2, new Color(0x128C7E)));
-
-        // Contact Header
-        JPanel contactHeader = new JPanel(new BorderLayout());
-        contactHeader.setBackground(new Color(0x26272D));
-        contactHeader.setBorder(new EmptyBorder(15, 15, 15, 15));
-
-        JLabel contactsLabel = new JLabel("Active Users");
-        contactsLabel.setForeground(Color.WHITE);
-        contactsLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        contactHeader.add(contactsLabel, BorderLayout.CENTER);
-
-        // Connection Status
-        connectionStatus = new JLabel("Connecting...");
-        connectionStatus.setForeground(Color.YELLOW);
-        connectionStatus.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        connectionStatus.setHorizontalAlignment(SwingConstants.RIGHT);
-        contactHeader.add(connectionStatus, BorderLayout.EAST);
-
-        leftPanel.add(contactHeader, BorderLayout.NORTH);
-
-        // Contact List
-        contactListModel = new DefaultListModel<>();
-        contactList = new JList<>(contactListModel);
-        contactList.setBackground(new Color(0x1C1D22));
-        contactList.setForeground(Color.WHITE);
-        contactList.setSelectionBackground(new Color(0x128C7E));
-        contactList.setSelectionForeground(Color.WHITE);
-        contactList.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        contactList.setCellRenderer(new CustomListCellRenderer());
-        
-        contactList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                String newSelectedUser = contactList.getSelectedValue();
-                if (newSelectedUser != null) {
-                    selectedUser = newSelectedUser;
-                    selectedUserLabel.setText(selectedUser);
-                    updateMessageArea(selectedUser);
-                }
-            }
-        });
-
-        JScrollPane contactScrollPane = new JScrollPane(contactList);
-        contactScrollPane.setBorder(BorderFactory.createEmptyBorder());
-        contactScrollPane.getVerticalScrollBar().setBackground(new Color(0x2C2D32));
-        leftPanel.add(contactScrollPane, BorderLayout.CENTER);
-
-        add(leftPanel, BorderLayout.WEST);
-
-        // Right Section: Chat Area
-        JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new BorderLayout());
-        rightPanel.setBackground(new Color(0x1C1D22));
-        rightPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        // Chat Header
-        JPanel chatHeader = new JPanel();
         chatHeader.setBackground(new Color(0x26272D));
         chatHeader.setLayout(new BorderLayout());
         chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
         chatHeader.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(0x128C7E)));
 
-        selectedUserLabel = new JLabel("Select a user to start chatting");
+        selectedUserLabel = new JLabel(targetUser);
         selectedUserLabel.setForeground(Color.WHITE);
         selectedUserLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         selectedUserLabel.setBorder(new EmptyBorder(0, 20, 0, 0));
         chatHeader.add(selectedUserLabel, BorderLayout.CENTER);
-        rightPanel.add(chatHeader, BorderLayout.NORTH);
+
+        // Connection Status
+        connectionStatus = new JLabel("Connected");
+        connectionStatus.setForeground(new Color(0x4CAF50));
+        connectionStatus.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        connectionStatus.setHorizontalAlignment(SwingConstants.RIGHT);
+        connectionStatus.setBorder(new EmptyBorder(0, 0, 0, 20));
+        chatHeader.add(connectionStatus, BorderLayout.EAST);
+
+        add(chatHeader, BorderLayout.NORTH);
 
         // Message Area
         messageArea = new JTextPane();
@@ -125,7 +70,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         messageScrollPane.setBorder(BorderFactory.createEmptyBorder());
         messageScrollPane.getVerticalScrollBar().setBackground(new Color(0x2C2D32));
-        rightPanel.add(messageScrollPane, BorderLayout.CENTER);
+        add(messageScrollPane, BorderLayout.CENTER);
 
         // Message Input Panel
         JPanel messageInputPanel = new JPanel();
@@ -177,19 +122,18 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         // Add enter key listener to write message field
         writeMessageField.addActionListener(e -> sendMessage());
 
-        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
-        add(rightPanel, BorderLayout.CENTER);
+        add(messageInputPanel, BorderLayout.SOUTH);
 
-        setVisible(true);
+        // Handle window closing
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                ChatManager.getInstance().closeChatWindow(targetUser);
+            }
+        });
     }
 
     private void selectAndSendFile() {
-        if (selectedUser == null) {
-            JOptionPane.showMessageDialog(this, "Please select a user to send the file to", 
-                "No user selected", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(this);
         
@@ -218,10 +162,10 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 try {
                     progressBar.setString("Sending file...");
                     progressBar.setValue(50);
-                    chatClient.sendFile(selectedUser, selectedFile.getAbsolutePath());
+                    chatClient.sendFile(targetUser, selectedFile.getAbsolutePath());
                     progressBar.setValue(100);
                     progressBar.setString("File sent successfully!");
-                    appendMessage(selectedUser, "You", "Sent file: " + selectedFile.getName(), true);
+                    appendMessage("You", "Sent file: " + selectedFile.getName(), true);
                     Thread.sleep(1000);
                     SwingUtilities.invokeLater(() -> progressDialog.dispose());
                 } catch (Exception e) {
@@ -240,28 +184,48 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     }
 
     private void sendMessage() {
-        if (selectedUser == null) {
-            JOptionPane.showMessageDialog(this, "Please select a user to chat with", 
-                "No user selected", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
         String message = writeMessageField.getText().trim();
         if (!message.isEmpty() && chatClient != null && chatClient.isConnected()) {
-            chatClient.sendMessage(selectedUser + " " + message);
-            appendMessage(selectedUser, "You", message, true);
+            chatClient.sendMessage(targetUser + " " + message);
+            appendMessage("You", message, true);
             writeMessageField.setText("");
         }
     }
 
-    private void appendMessage(String chatUser, String sender, String message, boolean isRight) {
-        StringBuilder history = messageHistory.computeIfAbsent(chatUser, k -> new StringBuilder());
+    public void receiveMessage(String sender, String message) {
+        appendMessage(sender, message, false);
+    }
+
+    public void receiveFile(FileWrapper file) {
+        SwingUtilities.invokeLater(() -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setSelectedFile(new File(file.getFilename()));
+            fileChooser.setDialogTitle("Save Received File");
+            
+            int result = fileChooser.showSaveDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File saveFile = fileChooser.getSelectedFile();
+                try {
+                    try (FileOutputStream fos = new FileOutputStream(saveFile)) {
+                        fos.write(file.getContent());
+                    }
+                    appendMessage("System", 
+                        "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
+                        false);
+                } catch (IOException e) {
+                    appendMessage("System", 
+                        "Error saving file: " + e.getMessage(), 
+                        false);
+                }
+            }
+        });
+    }
+
+    private void appendMessage(String sender, String message, boolean isRight) {
+        StringBuilder history = messageHistory.computeIfAbsent(targetUser, k -> new StringBuilder());
         String htmlMessage = formatMessage(sender, message, isRight);
         history.append(htmlMessage);
-
-        if (chatUser.equals(selectedUser)) {
-            updateMessageArea(chatUser);
-        }
+        updateMessageArea();
     }
 
     private String formatMessage(String sender, String message, boolean isRight) {
@@ -280,8 +244,8 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         );
     }
 
-    private void updateMessageArea(String user) {
-        StringBuilder history = messageHistory.get(user);
+    private void updateMessageArea() {
+        StringBuilder history = messageHistory.get(targetUser);
         String content = history != null ? history.toString() : "";
         
         try {
@@ -294,78 +258,22 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         }
     }
 
-    @Override
-    public void onMessageReceived(String message) {
-        SwingUtilities.invokeLater(() -> {
-            if (message.startsWith("ACTIVE_CLIENTS:")) {
-                String[] clients = message.substring("ACTIVE_CLIENTS:".length()).split(",");
-                updateContactList(clients);
-            } else if (message.contains(":")) {
-                String[] parts = message.split(":", 2);
-                String sender = parts[0].trim();
-                String content = parts[1].trim();
-                appendMessage(sender, sender, content, false);
-            }
-        });
-    }
-
-    @Override
-    public void onFileReceived(FileWrapper file) {
-        SwingUtilities.invokeLater(() -> {
-            String sender = file.getRecipient(); // Using recipient as sender since that's how it's implemented
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setSelectedFile(new File(file.getFilename()));
-            fileChooser.setDialogTitle("Save Received File");
-            
-            int result = fileChooser.showSaveDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File saveFile = fileChooser.getSelectedFile();
-                try {
-                    try (FileOutputStream fos = new FileOutputStream(saveFile)) {
-                        fos.write(file.getContent());
-                    }
-                    appendMessage(sender, "System", 
-                        "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
-                        false);
-                } catch (IOException e) {
-                    appendMessage(sender, "System", 
-                        "Error saving file: " + e.getMessage(), 
-                        false);
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onConnectionStatusChanged(boolean connected) {
+    public void updateConnectionStatus(boolean connected) {
         SwingUtilities.invokeLater(() -> {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setForeground(connected ? new Color(0x4CAF50) : new Color(0xFF5252));
         });
     }
 
-    private void updateContactList(String[] clients) {
-        SwingUtilities.invokeLater(() -> {
-            contactListModel.clear();
-            for (String client : clients) {
-                if (!client.equals(username)) {
-                    contactListModel.addElement(client);
-                }
-            }
-        });
-    }
+    // Required by ChatClient.MessageListener interface but not used in this implementation
+    @Override
+    public void onMessageReceived(String message) {}
 
-    class CustomListCellRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, 
-                int index, boolean isSelected, boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, 
-                    index, isSelected, cellHasFocus);
-            label.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x2C2D32)),
-                BorderFactory.createEmptyBorder(12, 20, 12, 20)
-            ));
-            return label;
-        }
+    @Override
+    public void onFileReceived(FileWrapper file) {}
+
+    @Override
+    public void onConnectionStatusChanged(boolean connected) {
+        updateConnectionStatus(connected);
     }
 }

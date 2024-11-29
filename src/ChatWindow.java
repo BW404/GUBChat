@@ -27,6 +27,15 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private static final Color TEXT_COLOR = new Color(0xFFFFFF);
     private boolean isMainWindow;
 
+    // Constructor for main chat window (from login)
+    public ChatWindow(String username) {
+        this.username = username;
+        this.isMainWindow = true;
+        this.messageHistory = new HashMap<>();
+        ChatManager.getInstance().initialize(username);
+        initializeMainUI();
+    }
+
     // Constructor for individual chat windows (from ChatManager)
     public ChatWindow(String username, String targetUser, ChatClient chatClient) {
         this.username = username;
@@ -35,14 +44,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         this.isMainWindow = false;
         this.messageHistory = new HashMap<>();
         initializeUI();
-    }
-
-    // Constructor for main chat window (from login)
-    public ChatWindow(String username) {
-        this.username = username;
-        this.targetUser = targetUser;
-        this.chatClient = chatClient;
-        this.isMainWindow = false;
         this.messageHistory = new HashMap<>();
         initializeUI();
     }

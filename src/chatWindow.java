@@ -3,7 +3,6 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicScrollBarUI;
 
 public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private JList<String> contactList;
@@ -322,11 +321,11 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                     try (FileOutputStream fos = new FileOutputStream(saveFile)) {
                         fos.write(file.getContent());
                     }
-                    appendMessage(file.getSender(), "System", 
+                    appendMessage(file.getRecipient(), "System", 
                         "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
                         false);
                 } catch (IOException e) {
-                    appendMessage(file.getSender(), "System", 
+                    appendMessage(file.getRecipient(), "System", 
                         "Error saving file: " + e.getMessage(), 
                         false);
                 }

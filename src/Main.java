@@ -6,6 +6,7 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             System.out.println("Inside invokeLater, opening login window"); // Debugging output
             System.out.println("Inside invokeLater, opening login window"); // Debugging output
+            System.out.println("Inside invokeLater, opening login window"); // Debugging output
             new loginWindow(); // Open the login window
         });
     }

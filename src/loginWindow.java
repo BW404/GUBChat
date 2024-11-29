@@ -31,6 +31,7 @@ public class loginWindow extends JFrame {
         this.setVisible(true); // Ensure the window is visible
         System.out.println("Login Window is now visible"); // Debugging output
         this.setLayout(null);
+        System.out.println("Login Window setup complete"); // Debugging output
         setLocationRelativeTo(null);
 
         // GUB logo

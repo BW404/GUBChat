@@ -25,85 +25,86 @@ public class signupWindow extends JFrame {
         this.setLayout(null);
         this.setResizable(false);
         setLocationRelativeTo(null);
-        this.getContentPane().setBackground(new Color(0X1C1D22));
+        this.getContentPane().setBackground(new Color(0x1C1D22));
+        this.getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
 
         // gub logo
-        JLabel gubLabel = new JLabel(new ImageIcon("src\\img\\gub_logo.png"));
+        JLabel gubLabel = new JLabel(new ImageIcon("src/img/gub_logo.png"));
         gubLabel.setBounds(100, 15, 200, 100);
         this.add(gubLabel);
 
-        // Gub Chat login label
-        JLabel loginLabel = new JLabel("GUB Chat SignUp");
-        loginLabel.setBounds(120, 110, 200, 50);
-        loginLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
-        loginLabel.setForeground(Color.WHITE);
-        this.add(loginLabel);
+        // Gub Chat signup label
+        JLabel signupLabel = new JLabel("GUB Chat SignUp");
+        signupLabel.setBounds(120, 110, 200, 50);
+        signupLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        signupLabel.setForeground(Color.WHITE);
+        this.add(signupLabel);
 
         // Username Label
         JLabel usernamLabel = new JLabel("Username:");
         usernamLabel.setBounds(150, 150, 300, 50);
-        usernamLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        usernamLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         usernamLabel.setForeground(Color.WHITE);
         this.add(usernamLabel);
 
         // Username Field
         usernameField = new JTextField();
-        usernameField.setBounds(100, 200, 200, 30);
-        usernameField.setFont(new Font("Dubai Bold", Font.PLAIN, 14));
+        usernameField.setBounds(100, 200, 200, 35);
+        usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         usernameField.setBorder(BorderFactory.createCompoundBorder(
-        usernameField.getBorder(), new EmptyBorder(5, 10, 5, 10) ));    
+            BorderFactory.createLineBorder(new Color(0x128C7E), 1),
+            new EmptyBorder(5, 10, 5, 10)));
         usernameField.setForeground(Color.WHITE);
-        usernameField.setBackground(new Color(0X1C1D22));
+        usernameField.setBackground(new Color(0x2C2D32));
         usernameField.setCaretColor(Color.WHITE);
         this.add(usernameField);
 
         // Password Label
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setBounds(150, 225, 300, 50);
-        passwordLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        passwordLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         passwordLabel.setForeground(Color.WHITE);
         this.add(passwordLabel);
 
         // Password Field
         passwordField = new JPasswordField();
-        passwordField.setBounds(100, 275, 200, 30);
-        passwordField.setFont(new Font("Dubai Bold", Font.PLAIN, 20));
+        passwordField.setBounds(100, 275, 200, 35);
+        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         passwordField.setBorder(BorderFactory.createCompoundBorder(
-        passwordField.getBorder(), new EmptyBorder(5, 10, 5, 10) ));
+            BorderFactory.createLineBorder(new Color(0x128C7E), 1),
+            new EmptyBorder(5, 10, 5, 10)));
         passwordField.setForeground(Color.WHITE);
-        passwordField.setBackground(new Color(0X1C1D22));
+        passwordField.setBackground(new Color(0x2C2D32));
         passwordField.setCaretColor(Color.WHITE);
         this.add(passwordField);
 
-        // Login Button
-        signupButton = new JButton("Signup");
-        signupButton.setBounds(100, 330, 200, 30);
-        signupButton.setFont(new Font("Comic Sans MS Bold", Font.PLAIN, 16));
+        // Signup Button
+        signupButton = new JButton("Sign Up");
+        signupButton.setBounds(100, 330, 200, 40);
+        signupButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         signupButton.setForeground(Color.WHITE);
-        signupButton.setBackground(new Color(0X3B5998));
+        signupButton.setBackground(new Color(0x128C7E));
+        signupButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        signupButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         signupButton.setFocusPainted(false);
         this.add(signupButton);
-
 
         // "Already have an account? Login" Button
         loginButton = new JButton("Already have an account? Login");
         loginButton.setBounds(100, 400, 200, 30);
-        loginButton.setFont(new Font("Comic Sans MS", Font.PLAIN, 12));
+        loginButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         loginButton.setBorder(BorderFactory.createEmptyBorder());
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setBackground(new Color(0X1C1D22));
+        loginButton.setForeground(new Color(0x128C7E));
+        loginButton.setBackground(new Color(0x1C1D22));
+        loginButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         loginButton.setFocusPainted(false);
         this.add(loginButton);
 
-
-       // Add ActionListener to the login button
+        // Add ActionListener to the signup button
         signupButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Authenticate the user
-                String enteredUsername = usernameField.getText();
-                String enteredPassword = new String(passwordField.getPassword());
-                // TODO: Add username and password in the databse 
+                // TODO: Add username and password in the database 
                 // TODO: Check if the username already exists
                 // TODO: If the username already exists, show a message dialog "Username already exists"
                 // TODO: If the username doesn't exist, add the user to the database and show a message dialog "Signup successful"
@@ -116,20 +117,11 @@ public class signupWindow extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Close the signup window
                 dispose();
-                // Open the login window
                 new loginWindow();
             }
         });
 
-        // Revalidate and repaint the frame
-        this.revalidate();
-        this.repaint();
-
-        // Make the frame visible
         this.setVisible(true);
     }
-
-
 }

@@ -39,19 +39,6 @@ public class ChatClient {
             
             // Request the list of connected clients
             out.writeObject("GET_CLIENTS");
-        try {
-            socket = new Socket(SERVER_ADDRESS, PORT);
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
-            
-            // Start reading messages in a separate thread
-            new Thread(this::readMessages).start();
-            
-            // Send username to server
-            out.writeObject(username);
-            isConnected = true;
-            messageListener.onConnectionStatusChanged(true);
-            
         } catch (IOException e) {
             e.printStackTrace();
             messageListener.onConnectionStatusChanged(false);

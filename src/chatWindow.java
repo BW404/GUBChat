@@ -158,12 +158,13 @@ public class ChatWindow extends JFrame {
     private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
         String alignment = isRight ? "right" : "left";
         String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
-    
+        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
+        
         String htmlMessage = String.format(
-            "<div style='text-align: %s; margin: 5px;'>"
-            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px;'>"
+            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
+            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
             + "<b>%s:</b> %s</p></div>",
-            alignment, colorHex, sender, message
+            alignment, colorHex, paddingLeft, sender, message
         );  
     
         try {

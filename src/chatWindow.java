@@ -295,6 +295,32 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     @Override
     public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
+            if (message.startsWith("ACTIVE_CLIENTS:")) {
+                String[] clients = message.substring("ACTIVE_CLIENTS:".length()).split(",");
+                updateContactList(clients);
+            } else if (message.contains(":")) {
+                String[] parts = message.split(":", 2);
+                String sender = parts[0].trim();
+                String content = parts[1].trim();
+                appendMessage(sender, sender, content, false);
+            }
+        });
+    }
+
+    @Override
+    public void onFileReceived(FileWrapper file) {
+        SwingUtilities.invokeLater(() -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setSelectedFile(new File(file.getFilename()));
+            fileChooser.setDialogTitle("Save Received File");
+            
+            int result = fileChooser.showSaveDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File saveFile = fileChooser.getSelectedFile();
+                try {
+                    try (FileOutputStream fos = new FileOutputStream(saveFile)) {
+                        fos.write(file.getContent());
+                    }
                     appendMessage(file.getRecipient(), "System", 
                         "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
                         false);
@@ -311,7 +337,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     public void onConnectionStatusChanged(boolean connected) {
         SwingUtilities.invokeLater(() -> {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
-            connectionStatus.setForeground(connected ? Color.GREEN : Color.RED);
+            connectionStatus.setForeground(connected ? new Color(0x4CAF50) : new Color(0xFF5252));
         });
     }
 
@@ -328,13 +354,66 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
     class CustomListCellRenderer extends DefaultListCellRenderer {
         @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        public Component getListCellRendererComponent(JList<?> list, Object value, 
+                int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, 
+                    index, isSelected, cellHasFocus);
             label.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x2C2D32)),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+                BorderFactory.createEmptyBorder(12, 20, 12, 20)
             ));
             return label;
+        }
+    }
+
+    class CustomScrollBarUI extends BasicScrollBarUI {
+        @Override
+        protected void configureScrollBarColors() {
+            this.thumbColor = new Color(0x128C7E);
+            this.trackColor = new Color(0x2C2D32);
+        }
+
+        @Override
+        protected JButton createDecreaseButton(int orientation) {
+            return createZeroButton();
+        }
+
+        @Override
+        protected JButton createIncreaseButton(int orientation) {
+            return createZeroButton();
+        }
+
+        private JButton createZeroButton() {
+            JButton button = new JButton();
+            button.setPreferredSize(new Dimension(0, 0));
+            button.setMinimumSize(new Dimension(0, 0));
+            button.setMaximumSize(new Dimension(0, 0));
+            return button;
+        }
+
+        @Override
+        protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+            if (thumbBounds.isEmpty() || !scrollbar.isEnabled()) {
+                return;
+            }
+
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setPaint(thumbColor);
+            g2.fillRoundRect(thumbBounds.x, thumbBounds.y,
+                    thumbBounds.width, thumbBounds.height,
+                    8, 8);
+            g2.dispose();
+        }
+
+        @Override
+        protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setPaint(trackColor);
+            g2.fillRect(trackBounds.x, trackBounds.y,
+                    trackBounds.width, trackBounds.height);
+            g2.dispose();
         }
     }
 }

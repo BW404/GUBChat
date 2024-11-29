@@ -101,7 +101,7 @@ public class ChatServer {
                 String privateMessage = parts[1];
                 ClientHandler targetHandler = ChatServer.getClientHandler(targetUsername);
                 if (targetHandler != null) {
-                    targetHandler.sendMessage("Private from " + username + ": " + privateMessage);
+                    targetHandler.sendMessage(username + ": " + privateMessage);
                 } else {
                     out.writeObject("User " + targetUsername + " is not online.");
                 }

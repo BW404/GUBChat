@@ -129,33 +129,26 @@ public class ChatWindow extends JFrame {
                     chatClient.sendMessage(message); // Send message to ChatClient
                     writeMessageField.setText(""); // Clear the input field
                 }
-                
-                        }
-                    messageInputPanel.add(sendButton, BorderLayout.EAST);
-            
-                    add(messageInputPanel, BorderLayout.SOUTH);
-                }
-            
-                // Define the CustomListCellRenderer class
-                class CustomListCellRenderer extends DefaultListCellRenderer {
-                    @Override
-                    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                        if (isSelected) {
-                            component.setBackground(new Color(0xD0D0D0));
-                            component.setForeground(Color.BLACK);
-                        } else {
-                            component.setBackground(new Color(0x1C1D22));
-                            component.setForeground(Color.WHITE);
-                        }
-                        return component;
-                    }
-                }
             }
         });
         messageInputPanel.add(sendButton, BorderLayout.EAST);
-
         add(messageInputPanel, BorderLayout.SOUTH);
+    }
+
+    // Define the CustomListCellRenderer class
+    class CustomListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (isSelected) {
+                component.setBackground(new Color(0xD0D0D0));
+                component.setForeground(Color.BLACK);
+            } else {
+                component.setBackground(new Color(0x1C1D22));
+                component.setForeground(Color.WHITE);
+            }
+            return component;
+        }
     }
 
     public void appendMessage(String sender, String message) {

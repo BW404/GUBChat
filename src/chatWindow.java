@@ -351,3 +351,19 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 if (!client.equals(username)) {
                     contactListModel.addElement(client);
                 }
+            }
+        });
+    }
+
+    class CustomListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x3A3A3C)),
+                BorderFactory.createEmptyBorder(12, 20, 12, 20)
+            ));
+            return label;
+        }
+    }
+}

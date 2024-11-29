@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 
 public class ChatClient {
-    private static final String SERVER_ADDRESS = "jalauddintaj-58689.portmap.io";
+    private static final String SERVER_ADDRESS = "localhost";
     private static final int PORT = 58689;
     private ObjectOutputStream out;
     private ObjectInputStream in;

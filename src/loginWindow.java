@@ -23,12 +23,11 @@ public class loginWindow extends JFrame {
         this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage()); 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 500);
-        this.getContentPane().setBackground(new Color(0x1C1D22));
+        this.getContentPane().setBackground(new Color(0X26272D));
         this.setResizable(false);
         System.out.println("Login Window");
         this.setLayout(null);
         setLocationRelativeTo(null);
-        this.getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
 
         // GUB logo
         JLabel gubLabel = new JLabel(new ImageIcon("src/img/gub_logo.png"));
@@ -38,67 +37,62 @@ public class loginWindow extends JFrame {
         // Gub Chat login label
         JLabel loginLabel = new JLabel("GUB Chat Login");
         loginLabel.setBounds(125, 110, 200, 50);
-        loginLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        loginLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
         loginLabel.setForeground(Color.WHITE);
         this.add(loginLabel);
 
         // Username Label
         JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setBounds(150, 150, 300, 50);
-        usernameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        usernameLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
         usernameLabel.setForeground(Color.WHITE);
         this.add(usernameLabel);
 
         // Username Field
         usernameField = new JTextField();
-        usernameField.setBounds(100, 200, 200, 35);
-        usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        usernameField.setBounds(100, 200, 200, 30);
+        usernameField.setFont(new Font("Dubai Bold", Font.PLAIN, 14));
         usernameField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0x128C7E), 1),
-                new EmptyBorder(5, 10, 5, 10)));
+                usernameField.getBorder(), new EmptyBorder(5, 10, 5, 10)));
         usernameField.setForeground(Color.WHITE);
-        usernameField.setBackground(new Color(0x2C2D32));
+        usernameField.setBackground(new Color(0X1C1D22));
         usernameField.setCaretColor(Color.WHITE);
         this.add(usernameField);
 
         // Password Label
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setBounds(150, 225, 300, 50);
-        passwordLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        passwordLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
         passwordLabel.setForeground(Color.WHITE);
         this.add(passwordLabel);
 
         // Password Field
         passwordField = new JPasswordField();
-        passwordField.setBounds(100, 275, 200, 35);
-        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        passwordField.setBounds(100, 275, 200, 30);
+        passwordField.setFont(new Font("Dubai Bold", Font.PLAIN, 20));
         passwordField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0x128C7E), 1),
-                new EmptyBorder(5, 10, 5, 10)));
+                passwordField.getBorder(), new EmptyBorder(5, 10, 5, 10)));
         passwordField.setForeground(Color.WHITE);
-        passwordField.setBackground(new Color(0x2C2D32));
+        passwordField.setBackground(new Color(0X1C1D22));
         passwordField.setCaretColor(Color.WHITE);
         this.add(passwordField);
 
         // Login Button
         loginButton = new JButton("Login");
-        loginButton.setBounds(100, 330, 200, 40);
-        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setBackground(new Color(0x128C7E));
-        loginButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        loginButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        loginButton.setBounds(100, 330, 200, 30);
+        loginButton.setFont(new Font("Comic Sans MS Bold", Font.PLAIN, 16));
+        loginButton.setForeground(Color.BLACK);
+        loginButton.setBackground(new Color(0X40a366));
         loginButton.setFocusPainted(false);
         this.add(loginButton);
 
         // "Don't have an account? Signup" Button
         signupButton = new JButton("Don't have an account? SignUp");
         signupButton.setBounds(100, 400, 200, 30);
-        signupButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        signupButton.setFont(new Font("Comic Sans MS", Font.PLAIN, 12));
         signupButton.setBorder(BorderFactory.createEmptyBorder());
-        signupButton.setForeground(new Color(0x128C7E));
-        signupButton.setBackground(new Color(0x1C1D22));
-        signupButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        signupButton.setForeground(Color.WHITE);
+        signupButton.setBackground(new Color(0X26272D));
         signupButton.setFocusPainted(false);
         this.add(signupButton);
 
@@ -119,14 +113,9 @@ public class loginWindow extends JFrame {
                 String enteredPassword = new String(passwordField.getPassword());
                 if (authenticate(enteredUsername, enteredPassword)) {
                     dispose();
-                    // Initialize ChatManager
-                    ChatManager chatManager = ChatManager.getInstance();
-                    chatManager.initialize(enteredUsername);
-                    
-                    // Create and show ContactsWindow
-                    ContactsWindow contactsWindow = new ContactsWindow(enteredUsername, chatManager.getChatClient());
-                    chatManager.setContactsWindow(contactsWindow);
-                    contactsWindow.setVisible(true);
+                    // Open the chat window directly
+                    ChatWindow chatWindow = new ChatWindow(enteredUsername);
+                    chatWindow.setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(loginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
                 }

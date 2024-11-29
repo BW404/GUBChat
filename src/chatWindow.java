@@ -251,7 +251,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 appendMessage("System", message, false, new Color(0x808080));
             } else if (message.startsWith("")) {
                 // Private message
-                appendMessage("Private", message, false, otherMessageColor);
+                appendMessage("", message, false, otherMessageColor);
             } else {
                 // Regular message
                 appendMessage("", message, false, otherMessageColor);

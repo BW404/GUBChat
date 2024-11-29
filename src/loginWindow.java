@@ -119,9 +119,9 @@ public class loginWindow extends JFrame {
                 if (authenticate(enteredUsername, enteredPassword)) {
                     // Close the login window
                     dispose();
-                    // Open the chat window
-                    ChatWindow ChatWindow=  new ChatWindow();
-                    ChatWindow.setVisible(true);
+                    // Open the chat window with the username
+                    ChatWindow chatWindow = new ChatWindow(enteredUsername);
+                    chatWindow.setVisible(true);
                 } else {
                     // Show an error message
                     JOptionPane.showMessageDialog(loginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);

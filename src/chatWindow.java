@@ -49,7 +49,7 @@ public class ChatWindow extends JFrame {
 
         // Left Section: Contact List
         JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(new Color(0x26272D)); // Light grey background
+        leftPanel.setBackground(new Color(0x084D44)); // Light grey background
         leftPanel.setLayout(new BorderLayout());
         leftPanel.setPreferredSize(new Dimension(300, getHeight()));
 

@@ -119,9 +119,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         contactList.setCellRenderer(new CustomListCellRenderer());
         
         // Add selection listener to handle private messages
-contactList.addListSelectionListener(e -> {
-    if (!e.getValueIsAdjusting()) {
-        String selectedUser = contactList.getSelectedValue();
         contactList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedUser = contactList.getSelectedValue();
@@ -133,7 +130,6 @@ contactList.addListSelectionListener(e -> {
                     new ChatWindow(selectedUser); // Create a new ChatWindow instance for the selected user
                 }
             }
-        });
         });
 
         JScrollPane contactScrollPane = new JScrollPane(contactList);
@@ -329,3 +325,14 @@ contactList.addListSelectionListener(e -> {
         }
     }
 }
+<environment_details>
+# VSCode Visible Files
+src/ChatWindow.java
+
+# VSCode Open Tabs
+src/ChatClient.java
+src/ChatServer.java
+src/loginWindow.java
+src/Main.java
+src/ChatWindow.java
+</environment_details>

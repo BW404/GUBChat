@@ -138,7 +138,7 @@ public class loginWindow extends JFrame {
         // TODO: Authenticate the user
         // TODO: It should connect ot teh server and check if the username and password are valid
 
-        return username.equals("taj") && password.equals("pass") || username.equals("admin") && password.equals("admin");
+        return username.equals("taj") && password.equals("pass") || username.equals("admin") && password.equals("admin") || username.equals("manik") && password.equals("manik");
     }
 
 

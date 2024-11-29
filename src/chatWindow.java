@@ -221,6 +221,13 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             } else if (message.startsWith("Private from")) {
                 // Private message
                 appendMessage("Private", message, false, otherMessageColor);
+            } else if (message.startsWith("CLIENT_LIST:")) {
+                // Update contact list
+                String[] clients = message.substring("CLIENT_LIST:".length()).split(",");
+                contactListModel.clear();
+                for (String client : clients) {
+                    contactListModel.addElement(client.trim());
+                }
             } else {
                 // Regular message
                 appendMessage("Other", message, false, otherMessageColor);

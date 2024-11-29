@@ -24,6 +24,30 @@ public class ChatWindow extends JFrame {
         initializeUI();
     }
 
+    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
+        String alignment = isRight ? "right" : "left";
+        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
+        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
+        
+        String htmlMessage = String.format(
+            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
+            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
+            + "<b>%s:</b> %s</p></div>",
+            alignment, colorHex, paddingLeft, sender, message
+        );  
+    
+        try {
+            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
+            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
+            kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
+            
+            // Auto-scroll to bottom
+            messageArea.setCaretPosition(messageArea.getDocument().getLength());
+        } catch (BadLocationException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error appending message: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void initializeUI() {
         setTitle("Chat with " + targetUser);
         setSize(800, 600);
@@ -128,9 +152,9 @@ public class ChatWindow extends JFrame {
     }
 
     public void receiveMessage(String sender, String message) {
-        SwingUtilities.invokeLater(() -> {
-            appendMessage(sender, message, false, otherMessageColor);
-        });
+        SwingUtilities.invokeLater(() -> 
+            appendMessage(sender, message, false, otherMessageColor)
+        );
     }
 
     public void receiveFile(FileWrapper file) {
@@ -153,29 +177,5 @@ public class ChatWindow extends JFrame {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setForeground(connected ? Color.GREEN : Color.RED);
         });
-    }
-
-    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
-        String alignment = isRight ? "right" : "left";
-        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
-        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
-        
-        String htmlMessage = String.format(
-            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
-            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
-            + "<b>%s:</b> %s</p></div>",
-            alignment, colorHex, paddingLeft, sender, message
-        );  
-    
-        try {
-            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
-            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
-            kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
-            
-            // Auto-scroll to bottom
-            messageArea.setCaretPosition(messageArea.getDocument().getLength());
-        } catch (BadLocationException | IOException e) {
-            JOptionPane.showMessageDialog(this, "Error appending message: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
 }

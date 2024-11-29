@@ -4,7 +4,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class chatWindow extends JFrame implements ChatClient.MessageListener {
+public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private static final long serialVersionUID = 1L;
     private JList<String> contactList;
     private DefaultListModel<String> contactListModel;
@@ -356,7 +356,9 @@ public class chatWindow extends JFrame implements ChatClient.MessageListener {
         });
     }
 
-    class CustomListCellRenderer extends DefaultListCellRenderer {
+    private class CustomListCellRenderer extends DefaultListCellRenderer {
+        private static final long serialVersionUID = 1L;
+        
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

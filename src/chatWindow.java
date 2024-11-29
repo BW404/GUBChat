@@ -78,7 +78,7 @@ public class ChatWindow extends JFrame {
         contactList = new JList<>(contactListModel);
         contactList.setBackground(new Color(0x1C1D22));
         contactList.setForeground(Color.WHITE);
-        contactList.setSelectionBackground(new Color(0xD0D0D0));
+        contactList.setSelectionBackground(new Color(0x084D44));
         contactList.setSelectionForeground(Color.WHITE);
         contactList.setFont(new Font("Roboto", Font.PLAIN, 14));
 

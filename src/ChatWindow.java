@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.JTextComponent;
 
 public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private static final long serialVersionUID = 1L;
@@ -13,7 +14,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private JTextPane messageArea;
     private JTextField writeMessageField;
     private JTextField searchField;
-    private ChatClient chatClient;
+    private final ChatClient chatClient;
     private String username;
     private String targetUser;
     private Color myMessageColor = new Color(0x8DE8E3); // Light blue for sent messages

@@ -15,6 +15,7 @@ public class ChatWindow extends JFrame {
     private Color myMessageColor = new Color(0x168AFF);
     private Color otherMessageColor = new Color(0xFF6070);
     private JLabel connectionStatus;
+    private JLabel typingLabel;
 
     public ChatWindow(String username, String targetUser, ChatClient chatClient) {
         this.username = username;
@@ -37,10 +38,21 @@ public class ChatWindow extends JFrame {
         chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
         chatHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+        // User info panel (left side of header)
+        JPanel userInfoPanel = new JPanel(new BorderLayout());
+        userInfoPanel.setOpaque(false);
+
         JLabel chatHeaderLabel = new JLabel(targetUser);
         chatHeaderLabel.setForeground(Color.WHITE);
         chatHeaderLabel.setFont(new Font("Roboto", Font.BOLD, 16));
-        chatHeader.add(chatHeaderLabel, BorderLayout.CENTER);
+        userInfoPanel.add(chatHeaderLabel, BorderLayout.NORTH);
+
+        typingLabel = new JLabel(" ");
+        typingLabel.setForeground(Color.GRAY);
+        typingLabel.setFont(new Font("Roboto", Font.ITALIC, 12));
+        userInfoPanel.add(typingLabel, BorderLayout.SOUTH);
+
+        chatHeader.add(userInfoPanel, BorderLayout.WEST);
 
         // Connection Status
         connectionStatus = new JLabel("Connected");
@@ -57,7 +69,18 @@ public class ChatWindow extends JFrame {
         messageArea.setBackground(new Color(0x141416));
         messageArea.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
         messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        
+        // Initialize with empty content
+        try {
+            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
+            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
+            kit.insertHTML(doc, doc.getLength(), "<html><body style='color: white;'></body></html>", 0, 0, null);
+        } catch (BadLocationException | IOException e) {
+            e.printStackTrace();
+        }
+
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
+        messageScrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(messageScrollPane, BorderLayout.CENTER);
 
         // Message Input Field
@@ -122,29 +145,6 @@ public class ChatWindow extends JFrame {
             } catch (IOException e) {
                 appendMessage("System", "Error saving file: " + e.getMessage(), false, new Color(0xFF0000));
             }
-        });
-    }
-
-    public void updateConnectionStatus(boolean connected) {
-        SwingUtilities.invokeLater(() -> {
-            connectionStatus.setText(connected ? "Connected" : "Disconnected");
-            connectionStatus.setForeground(connected ? Color.GREEN : Color.RED);
-        });
-    }
-
-    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
-        String alignment = isRight ? "right" : "left";
-        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
-        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
-        
-        String htmlMessage = String.format(
-            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
-            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
-            + "<b>%s:</b> %s</p></div>",
-            alignment, colorHex, paddingLeft, sender, message
-        );  
-    
-        try {
             HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
             HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
             kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);

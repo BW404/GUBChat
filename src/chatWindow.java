@@ -249,12 +249,12 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             } else if (message.startsWith("Welcome") || message.contains("has joined") || message.contains("is not online")) {
                 // System message
                 appendMessage("System", message, false, new Color(0x808080));
-            } else if (message.startsWith("Private from")) {
+            } else if (message.startsWith("")) {
                 // Private message
                 appendMessage("Private", message, false, otherMessageColor);
             } else {
                 // Regular message
-                appendMessage("Other", message, false, otherMessageColor);
+                appendMessage("", message, false, otherMessageColor);
             }
         });
     }

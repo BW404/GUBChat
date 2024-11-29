@@ -126,6 +126,10 @@ contactList.addListSelectionListener(e -> {
             writeMessageField.setText(selectedUser + " ");
             writeMessageField.requestFocus();
             writeMessageField.setCaretPosition(writeMessageField.getText().length());
+        if (selectedUser != null) {
+            writeMessageField.setText(selectedUser + " ");
+            writeMessageField.requestFocus();
+            writeMessageField.setCaretPosition(writeMessageField.getText().length());
         // Open a new chat window for the selected user
         new ChatWindow(selectedUser); // Create a new ChatWindow instance for the selected user
     }

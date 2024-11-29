@@ -12,8 +12,8 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private ChatClient chatClient;
     private String username;
     private String selectedUser;
-    private Color myMessageColor = new Color(0x168AFF);
-    private Color otherMessageColor = new Color(0xFF6070);
+    private Color myMessageColor = new Color(0x128C7E);  // Updated to match theme
+    private Color otherMessageColor = new Color(0x2C2D32);  // Updated to match theme
     private JLabel connectionStatus;
     private JLabel selectedUserLabel;
     private Map<String, StringBuilder> messageHistory;
@@ -37,26 +37,30 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
+        getContentPane().setBackground(new Color(0x1C1D22));
+        getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
 
         // Left Section: Contact List
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(new Color(0x26272D));
         leftPanel.setLayout(new BorderLayout());
         leftPanel.setPreferredSize(new Dimension(300, getHeight()));
+        leftPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 2, new Color(0x128C7E)));
 
         // Contact Header
         JPanel contactHeader = new JPanel(new BorderLayout());
         contactHeader.setBackground(new Color(0x26272D));
-        contactHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
+        contactHeader.setBorder(new EmptyBorder(15, 15, 15, 15));
 
         JLabel contactsLabel = new JLabel("Active Users");
         contactsLabel.setForeground(Color.WHITE);
-        contactsLabel.setFont(new Font("Roboto", Font.BOLD, 16));
+        contactsLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         contactHeader.add(contactsLabel, BorderLayout.CENTER);
 
         // Connection Status
         connectionStatus = new JLabel("Connecting...");
         connectionStatus.setForeground(Color.YELLOW);
+        connectionStatus.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         connectionStatus.setHorizontalAlignment(SwingConstants.RIGHT);
         contactHeader.add(connectionStatus, BorderLayout.EAST);
 
@@ -67,12 +71,11 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         contactList = new JList<>(contactListModel);
         contactList.setBackground(new Color(0x1C1D22));
         contactList.setForeground(Color.WHITE);
-        contactList.setSelectionBackground(new Color(0x168AFF));
+        contactList.setSelectionBackground(new Color(0x128C7E));
         contactList.setSelectionForeground(Color.WHITE);
-        contactList.setFont(new Font("Roboto", Font.PLAIN, 14));
+        contactList.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         contactList.setCellRenderer(new CustomListCellRenderer());
         
-        // Add selection listener
         contactList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String newSelectedUser = contactList.getSelectedValue();
@@ -85,7 +88,8 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         });
 
         JScrollPane contactScrollPane = new JScrollPane(contactList);
-        contactScrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        contactScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        contactScrollPane.getVerticalScrollBar().setUI(new CustomScrollBarUI());
         leftPanel.add(contactScrollPane, BorderLayout.CENTER);
 
         add(leftPanel, BorderLayout.WEST);
@@ -98,14 +102,15 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
         // Chat Header
         JPanel chatHeader = new JPanel();
-        chatHeader.setBackground(new Color(0x1C1D22));
+        chatHeader.setBackground(new Color(0x26272D));
         chatHeader.setLayout(new BorderLayout());
         chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
-        chatHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
+        chatHeader.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(0x128C7E)));
 
         selectedUserLabel = new JLabel("Select a user to start chatting");
         selectedUserLabel.setForeground(Color.WHITE);
-        selectedUserLabel.setFont(new Font("Roboto", Font.BOLD, 16));
+        selectedUserLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        selectedUserLabel.setBorder(new EmptyBorder(0, 20, 0, 0));
         chatHeader.add(selectedUserLabel, BorderLayout.CENTER);
         rightPanel.add(chatHeader, BorderLayout.NORTH);
 
@@ -113,41 +118,61 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         messageArea = new JTextPane();
         messageArea.setContentType("text/html");
         messageArea.setEditable(false);
-        messageArea.setBackground(new Color(0x141416));
+        messageArea.setBackground(new Color(0x1C1D22));
         messageArea.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
-        messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        messageArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
+        messageScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        messageScrollPane.getVerticalScrollBar().setUI(new CustomScrollBarUI());
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 
-        // Message Input Field
+        // Message Input Panel
         JPanel messageInputPanel = new JPanel();
-        messageInputPanel.setLayout(new BorderLayout());
-        messageInputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        messageInputPanel.setLayout(new BorderLayout(10, 0));
+        messageInputPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         messageInputPanel.setBackground(new Color(0x26272D));
 
+        // Message Input Field
         writeMessageField = new JTextField();
-        writeMessageField.setPreferredSize(new Dimension(200, 30));
-        writeMessageField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        writeMessageField.setFont(new Font("Arial", Font.PLAIN, 14));
-        writeMessageField.setBackground(new Color(0xE0E0E0));
-        writeMessageField.setForeground(Color.BLACK);
+        writeMessageField.setPreferredSize(new Dimension(200, 40));
+        writeMessageField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(0x128C7E), 1),
+            new EmptyBorder(5, 15, 5, 15)));
+        writeMessageField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        writeMessageField.setBackground(new Color(0x2C2D32));
+        writeMessageField.setForeground(Color.WHITE);
+        writeMessageField.setCaretColor(Color.WHITE);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
 
-        // Add file attachment button
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonsPanel.setBackground(new Color(0x26272D));
+
+        // Attach Button
         JButton attachButton = new JButton("📎");
+        attachButton.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        attachButton.setPreferredSize(new Dimension(40, 40));
         attachButton.setBackground(new Color(0x128C7E));
         attachButton.setForeground(Color.WHITE);
-        attachButton.setFont(new Font("Arial", Font.BOLD, 16));
-        attachButton.setToolTipText("Attach File");
+        attachButton.setBorder(BorderFactory.createEmptyBorder());
+        attachButton.setFocusPainted(false);
+        attachButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         attachButton.addActionListener(e -> selectAndSendFile());
-        messageInputPanel.add(attachButton, BorderLayout.WEST);
+        buttonsPanel.add(attachButton);
 
+        // Send Button
         JButton sendButton = new JButton(new ImageIcon("src/img/send.png"));
+        sendButton.setPreferredSize(new Dimension(40, 40));
         sendButton.setBackground(new Color(0x128C7E));
         sendButton.setForeground(Color.WHITE);
-        sendButton.setFont(new Font("Arial", Font.BOLD, 14));
+        sendButton.setBorder(BorderFactory.createEmptyBorder());
+        sendButton.setFocusPainted(false);
+        sendButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         sendButton.addActionListener(e -> sendMessage());
-        messageInputPanel.add(sendButton, BorderLayout.EAST);
+        buttonsPanel.add(sendButton);
+
+        messageInputPanel.add(buttonsPanel, BorderLayout.EAST);
 
         // Add enter key listener to write message field
         writeMessageField.addActionListener(e -> sendMessage());
@@ -169,7 +194,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             
-            // Check file size
             if (selectedFile.length() > MAX_FILE_SIZE) {
                 JOptionPane.showMessageDialog(this, 
                     "File size exceeds limit of 100MB", 
@@ -178,16 +202,16 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 return;
             }
 
-            // Show progress dialog
             JDialog progressDialog = new JDialog(this, "Sending File", true);
+            progressDialog.setBackground(new Color(0x1C1D22));
             JProgressBar progressBar = new JProgressBar(0, 100);
             progressBar.setStringPainted(true);
             progressBar.setString("Preparing to send file...");
+            progressBar.setForeground(new Color(0x128C7E));
             progressDialog.add(progressBar);
             progressDialog.setSize(300, 75);
             progressDialog.setLocationRelativeTo(this);
 
-            // Start file transfer in background
             new Thread(() -> {
                 try {
                     progressBar.setString("Sending file...");
@@ -196,7 +220,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                     progressBar.setValue(100);
                     progressBar.setString("File sent successfully!");
                     appendMessage(selectedUser, "You", "Sent file: " + selectedFile.getName(), true);
-                    Thread.sleep(1000); // Show completion for 1 second
+                    Thread.sleep(1000);
                     SwingUtilities.invokeLater(() -> progressDialog.dispose());
                 } catch (Exception e) {
                     SwingUtilities.invokeLater(() -> {
@@ -215,7 +239,8 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
     private void sendMessage() {
         if (selectedUser == null) {
-            JOptionPane.showMessageDialog(this, "Please select a user to chat with", "No user selected", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a user to chat with", 
+                "No user selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -228,12 +253,10 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     }
 
     private void appendMessage(String chatUser, String sender, String message, boolean isRight) {
-        // Store message in history
         StringBuilder history = messageHistory.computeIfAbsent(chatUser, k -> new StringBuilder());
         String htmlMessage = formatMessage(sender, message, isRight);
         history.append(htmlMessage);
 
-        // Update message area if this is the selected chat
         if (chatUser.equals(selectedUser)) {
             updateMessageArea(chatUser);
         }
@@ -242,14 +265,16 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private String formatMessage(String sender, String message, boolean isRight) {
         String alignment = isRight ? "right" : "left";
         Color backgroundColor = isRight ? myMessageColor : otherMessageColor;
-        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
-        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
+        String colorHex = String.format("#%02x%02x%02x", 
+            backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
         
         return String.format(
-            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
-            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
-            + "<b>%s:</b> %s</p></div>",
-            alignment, colorHex, paddingLeft, sender, message
+            "<div style='text-align: %s; margin: 10px 0;'>" +
+            "<div style='display: inline-block; max-width: 70%%; background-color: %s; " +
+            "padding: 10px 15px; border-radius: 15px; margin: 0 20px;'>" +
+            "<span style='color: #ffffff; font-family: \"Segoe UI\";'>" +
+            "<b>%s</b><br>%s</span></div></div>",
+            alignment, colorHex, sender, message
         );
     }
 
@@ -259,7 +284,8 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         
         try {
             messageArea.setContentType("text/html");
-            messageArea.setText("<html><body style='color: white;'>" + content + "</body></html>");
+            messageArea.setText("<html><body style='color: white; font-family: \"Segoe UI\";'>" + 
+                              content + "</body></html>");
             messageArea.setCaretPosition(messageArea.getDocument().getLength());
         } catch (Exception e) {
             e.printStackTrace();
@@ -269,32 +295,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     @Override
     public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
-            if (message.startsWith("ACTIVE_CLIENTS:")) {
-                String[] clients = message.substring("ACTIVE_CLIENTS:".length()).split(",");
-                updateContactList(clients);
-            } else if (message.contains(":")) {
-                String[] parts = message.split(":", 2);
-                String sender = parts[0].trim();
-                String content = parts[1].trim();
-                appendMessage(sender, sender, content, false);
-            }
-        });
-    }
-
-    @Override
-    public void onFileReceived(FileWrapper file) {
-        SwingUtilities.invokeLater(() -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setSelectedFile(new File(file.getFilename()));
-            fileChooser.setDialogTitle("Save Received File");
-            
-            int result = fileChooser.showSaveDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File saveFile = fileChooser.getSelectedFile();
-                try {
-                    try (FileOutputStream fos = new FileOutputStream(saveFile)) {
-                        fos.write(file.getContent());
-                    }
                     appendMessage(file.getRecipient(), "System", 
                         "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
                         false);

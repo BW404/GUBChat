@@ -76,7 +76,7 @@ public class ChatWindow extends JFrame {
         contactListModel.addElement("Jane Smith");
         contactListModel.addElement("Alice Johnson");
         contactList = new JList<>(contactListModel);
-        contactList.setBackground(new Color(0x084D44));
+        contactList.setBackground(new Color(0xFF7629));
         contactList.setForeground(Color.WHITE);
         contactList.setSelectionBackground(new Color(0xFF7629));
         contactList.setSelectionForeground(Color.WHITE);

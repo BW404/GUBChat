@@ -1,59 +1,99 @@
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
+import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
 
-public class ChatWindow extends JFrame {
+public class ChatWindow extends JFrame implements ChatClient.MessageListener {
+    private JList<String> contactList;
+    private DefaultListModel<String> contactListModel;
     private JTextPane messageArea;
     private JTextField writeMessageField;
     private ChatClient chatClient;
     private String username;
-    private String targetUser;
+    private String selectedUser;
     private Color myMessageColor = new Color(0x168AFF);
     private Color otherMessageColor = new Color(0xFF6070);
     private JLabel connectionStatus;
-    private JLabel typingLabel;
+    private JLabel selectedUserLabel;
+    private Map<String, StringBuilder> messageHistory;
 
-    public ChatWindow(String username, String targetUser, ChatClient chatClient) {
+    public ChatWindow(String username) {
         this.username = username;
-        this.targetUser = targetUser;
-        this.chatClient = chatClient;
+        this.messageHistory = new HashMap<>();
         initializeUI();
+        initializeClient();
     }
 
-    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
-        String alignment = isRight ? "right" : "left";
-        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
-        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
-        
-        String htmlMessage = String.format(
-            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
-            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
-            + "<b>%s:</b> %s</p></div>",
-            alignment, colorHex, paddingLeft, sender, message
-        );  
-    
-        try {
-            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
-            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
-            kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
-            
-            // Auto-scroll to bottom
-            messageArea.setCaretPosition(messageArea.getDocument().getLength());
-        } catch (BadLocationException | IOException e) {
-            JOptionPane.showMessageDialog(this, "Error appending message: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    private void initializeClient() {
+        chatClient = new ChatClient(username, this);
+        chatClient.connect();
     }
 
     private void initializeUI() {
-        setTitle("Chat with " + targetUser);
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setTitle("GUB Chat - " + username);
+        setSize(1200, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
+
+        // Left Section: Contact List
+        JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(new Color(0x26272D));
+        leftPanel.setLayout(new BorderLayout());
+        leftPanel.setPreferredSize(new Dimension(300, getHeight()));
+
+        // Contact Header
+        JPanel contactHeader = new JPanel(new BorderLayout());
+        contactHeader.setBackground(new Color(0x26272D));
+        contactHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JLabel contactsLabel = new JLabel("Active Users");
+        contactsLabel.setForeground(Color.WHITE);
+        contactsLabel.setFont(new Font("Roboto", Font.BOLD, 16));
+        contactHeader.add(contactsLabel, BorderLayout.CENTER);
+
+        // Connection Status
+        connectionStatus = new JLabel("Connecting...");
+        connectionStatus.setForeground(Color.YELLOW);
+        connectionStatus.setHorizontalAlignment(SwingConstants.RIGHT);
+        contactHeader.add(connectionStatus, BorderLayout.EAST);
+
+        leftPanel.add(contactHeader, BorderLayout.NORTH);
+
+        // Contact List
+        contactListModel = new DefaultListModel<>();
+        contactList = new JList<>(contactListModel);
+        contactList.setBackground(new Color(0x1C1D22));
+        contactList.setForeground(Color.WHITE);
+        contactList.setSelectionBackground(new Color(0x168AFF));
+        contactList.setSelectionForeground(Color.WHITE);
+        contactList.setFont(new Font("Roboto", Font.PLAIN, 14));
+        contactList.setCellRenderer(new CustomListCellRenderer());
+        
+        // Add selection listener
+        contactList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String newSelectedUser = contactList.getSelectedValue();
+                if (newSelectedUser != null) {
+                    selectedUser = newSelectedUser;
+                    selectedUserLabel.setText(selectedUser);
+                    updateMessageArea(selectedUser);
+                }
+            }
+        });
+
+        JScrollPane contactScrollPane = new JScrollPane(contactList);
+        contactScrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        leftPanel.add(contactScrollPane, BorderLayout.CENTER);
+
+        add(leftPanel, BorderLayout.WEST);
+
+        // Right Section: Chat Area
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BorderLayout());
+        rightPanel.setBackground(new Color(0x1C1D22));
+        rightPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         // Chat Header
         JPanel chatHeader = new JPanel();
@@ -62,29 +102,11 @@ public class ChatWindow extends JFrame {
         chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
         chatHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // User info panel (left side of header)
-        JPanel userInfoPanel = new JPanel(new BorderLayout());
-        userInfoPanel.setOpaque(false);
-
-        JLabel chatHeaderLabel = new JLabel(targetUser);
-        chatHeaderLabel.setForeground(Color.WHITE);
-        chatHeaderLabel.setFont(new Font("Roboto", Font.BOLD, 16));
-        userInfoPanel.add(chatHeaderLabel, BorderLayout.NORTH);
-
-        typingLabel = new JLabel(" ");
-        typingLabel.setForeground(Color.GRAY);
-        typingLabel.setFont(new Font("Roboto", Font.ITALIC, 12));
-        userInfoPanel.add(typingLabel, BorderLayout.SOUTH);
-
-        chatHeader.add(userInfoPanel, BorderLayout.WEST);
-
-        // Connection Status
-        connectionStatus = new JLabel("Connected");
-        connectionStatus.setForeground(Color.GREEN);
-        connectionStatus.setHorizontalAlignment(SwingConstants.RIGHT);
-        chatHeader.add(connectionStatus, BorderLayout.EAST);
-
-        add(chatHeader, BorderLayout.NORTH);
+        selectedUserLabel = new JLabel("Select a user to start chatting");
+        selectedUserLabel.setForeground(Color.WHITE);
+        selectedUserLabel.setFont(new Font("Roboto", Font.BOLD, 16));
+        chatHeader.add(selectedUserLabel, BorderLayout.CENTER);
+        rightPanel.add(chatHeader, BorderLayout.NORTH);
 
         // Message Area
         messageArea = new JTextPane();
@@ -93,19 +115,8 @@ public class ChatWindow extends JFrame {
         messageArea.setBackground(new Color(0x141416));
         messageArea.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
         messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        
-        // Initialize with empty content
-        try {
-            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
-            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
-            kit.insertHTML(doc, doc.getLength(), "<html><body style='color: white;'></body></html>", 0, 0, null);
-        } catch (BadLocationException | IOException e) {
-            e.printStackTrace();
-        }
-
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
-        messageScrollPane.setBorder(BorderFactory.createEmptyBorder());
-        add(messageScrollPane, BorderLayout.CENTER);
+        rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 
         // Message Input Field
         JPanel messageInputPanel = new JPanel();
@@ -131,51 +142,126 @@ public class ChatWindow extends JFrame {
         // Add enter key listener to write message field
         writeMessageField.addActionListener(e -> sendMessage());
 
-        add(messageInputPanel, BorderLayout.SOUTH);
-
-        // Add window listener to handle window closing
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent windowEvent) {
-                ChatManager.getInstance().closeChatWindow(targetUser);
-            }
-        });
+        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
+        add(rightPanel, BorderLayout.CENTER);
     }
 
     private void sendMessage() {
+        if (selectedUser == null) {
+            JOptionPane.showMessageDialog(this, "Please select a user to chat with", "No user selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         String message = writeMessageField.getText().trim();
         if (!message.isEmpty() && chatClient != null && chatClient.isConnected()) {
-            chatClient.sendMessage(targetUser + " " + message);
-            appendMessage("You", message, true, myMessageColor);
+            chatClient.sendMessage(selectedUser + " " + message);
+            appendMessage(selectedUser, "You", message, true);
             writeMessageField.setText("");
         }
     }
 
-    public void receiveMessage(String sender, String message) {
-        SwingUtilities.invokeLater(() -> 
-            appendMessage(sender, message, false, otherMessageColor)
+    private void appendMessage(String chatUser, String sender, String message, boolean isRight) {
+        // Store message in history
+        StringBuilder history = messageHistory.computeIfAbsent(chatUser, k -> new StringBuilder());
+        String htmlMessage = formatMessage(sender, message, isRight);
+        history.append(htmlMessage);
+
+        // Update message area if this is the selected chat
+        if (chatUser.equals(selectedUser)) {
+            updateMessageArea(chatUser);
+        }
+    }
+
+    private String formatMessage(String sender, String message, boolean isRight) {
+        String alignment = isRight ? "right" : "left";
+        Color backgroundColor = isRight ? myMessageColor : otherMessageColor;
+        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
+        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
+        
+        return String.format(
+            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
+            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
+            + "<b>%s:</b> %s</p></div>",
+            alignment, colorHex, paddingLeft, sender, message
         );
     }
 
-    public void receiveFile(FileWrapper file) {
+    private void updateMessageArea(String user) {
+        StringBuilder history = messageHistory.get(user);
+        String content = history != null ? history.toString() : "";
+        
+        try {
+            messageArea.setContentType("text/html");
+            messageArea.setText("<html><body style='color: white;'>" + content + "</body></html>");
+            messageArea.setCaretPosition(messageArea.getDocument().getLength());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ChatClient.MessageListener Implementation
+    @Override
+    public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
-            appendMessage("System", "Received file: " + file.getFilename(), false, new Color(0x808080));
+            if (message.startsWith("ACTIVE_CLIENTS:")) {
+                String[] clients = message.substring("ACTIVE_CLIENTS:".length()).split(",");
+                updateContactList(clients);
+            } else if (message.contains(":")) {
+                String[] parts = message.split(":", 2);
+                String sender = parts[0].trim();
+                String content = parts[1].trim();
+                appendMessage(sender, sender, content, false);
+            }
+        });
+    }
+
+    @Override
+    public void onFileReceived(FileWrapper file) {
+        SwingUtilities.invokeLater(() -> {
             try {
                 File savedFile = new File("received_" + file.getFilename());
                 try (FileOutputStream fos = new FileOutputStream(savedFile)) {
                     fos.write(file.getContent());
                 }
-                appendMessage("System", "File saved as: " + savedFile.getName(), false, new Color(0x808080));
+                appendMessage(file.getRecipient(), "System", 
+                    "Received file: " + file.getFilename() + "\nSaved as: " + savedFile.getName(), 
+                    false);
             } catch (IOException e) {
-                appendMessage("System", "Error saving file: " + e.getMessage(), false, new Color(0xFF0000));
+                appendMessage(file.getRecipient(), "System", 
+                    "Error saving file: " + e.getMessage(), 
+                    false);
             }
         });
     }
 
-    public void updateConnectionStatus(boolean connected) {
+    @Override
+    public void onConnectionStatusChanged(boolean connected) {
         SwingUtilities.invokeLater(() -> {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setForeground(connected ? Color.GREEN : Color.RED);
         });
+    }
+
+    private void updateContactList(String[] clients) {
+        SwingUtilities.invokeLater(() -> {
+            contactListModel.clear();
+            for (String client : clients) {
+                if (!client.equals(username)) {
+                    contactListModel.addElement(client);
+                }
+            }
+        });
+    }
+
+    class CustomListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x2C2D32)),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+            ));
+            return label;
+        }
     }
 }

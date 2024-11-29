@@ -11,7 +11,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private JTextField writeMessageField;
     private ChatClient chatClient;
     private String username;
-    private String selectedUser;
+    private String targetUser;
     private Color myMessageColor = new Color(0x128C7E);  // Updated to match theme
     private Color otherMessageColor = new Color(0x2C2D32);  // Updated to match theme
     private JLabel connectionStatus;
@@ -19,25 +19,25 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private Map<String, StringBuilder> messageHistory;
     private static final int MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB limit
 
-    public ChatWindow(String username) {
+    public ChatWindow(String username, String targetUser, ChatClient chatClient) {
         this.username = username;
+        this.targetUser = targetUser;
+        this.chatClient = chatClient;
         this.messageHistory = new HashMap<>();
         initializeUI();
-        initializeClient();
-    }
-
-    private void initializeClient() {
-        chatClient = new ChatClient(username, this);
-        chatClient.connect();
     }
 
     private void initializeUI() {
-        setTitle("GUB Chat - " + username);
-        setSize(1200, 800);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Chat with " + targetUser);
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
         getContentPane().setBackground(new Color(0x1C1D22));
+        getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
+
+        // Chat Header
+        JPanel chatHeader = new JPanel();
         getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
 
         // Left Section: Contact List

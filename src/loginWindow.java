@@ -26,7 +26,6 @@ public class loginWindow extends JFrame {
         this.getContentPane().setBackground(new Color(0x1C1D22));
         this.setResizable(false);
         this.getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
-=======
         System.out.println("Login Window");
         this.setLayout(null);
         setLocationRelativeTo(null);
@@ -39,21 +38,21 @@ public class loginWindow extends JFrame {
         // Gub Chat login label
         JLabel loginLabel = new JLabel("GUB Chat Login");
         loginLabel.setBounds(125, 110, 200, 50);
-        loginLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        loginLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         loginLabel.setForeground(Color.WHITE);
         this.add(loginLabel);
 
         // Username Label
         JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setBounds(150, 150, 300, 50);
-        usernameLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        usernameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         usernameLabel.setForeground(Color.WHITE);
         this.add(usernameLabel);
 
         // Username Field
         usernameField = new JTextField();
-        usernameField.setBounds(100, 200, 200, 30);
-        usernameField.setFont(new Font("Dubai Bold", Font.PLAIN, 14));
+        usernameField.setBounds(100, 200, 200, 35);
+        usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         usernameField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(0x128C7E), 1),
                 new EmptyBorder(5, 10, 5, 10)));
@@ -65,14 +64,14 @@ public class loginWindow extends JFrame {
         // Password Label
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setBounds(150, 225, 300, 50);
-        passwordLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        passwordLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         passwordLabel.setForeground(Color.WHITE);
         this.add(passwordLabel);
 
         // Password Field
         passwordField = new JPasswordField();
-        passwordField.setBounds(100, 275, 200, 30);
-        passwordField.setFont(new Font("Dubai Bold", Font.PLAIN, 20));
+        passwordField.setBounds(100, 275, 200, 35);
+        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         passwordField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(0x128C7E), 1),
                 new EmptyBorder(5, 10, 5, 10)));
@@ -83,7 +82,7 @@ public class loginWindow extends JFrame {
 
         // Login Button
         loginButton = new JButton("Login");
-        loginButton.setBounds(100, 330, 200, 35);
+        loginButton.setBounds(100, 330, 200, 40);
         loginButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         loginButton.setForeground(Color.WHITE);
         loginButton.setBackground(new Color(0x128C7E));

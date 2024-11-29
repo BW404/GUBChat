@@ -149,6 +149,9 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         // Message Area
         messageArea = new JTextPane();
         messageArea.setContentType("text/html");
+        messageArea.setEditable(false);
+        messageArea.setBackground(DARK_BG);
+        messageArea.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
         messageArea.setFont(new Font("SF Pro Display", Font.PLAIN, 14));
         
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
@@ -285,10 +288,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         }
     }
 
-    public void receiveMessage(String sender, String content) {
-        appendMessage(sender, content, false);
-    }
-
     @Override
     public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
@@ -304,8 +303,8 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         });
     }
 
-    public void receiveFile(FileWrapper file) {
-        onFileReceived(file);
+    public void receiveMessage(String sender, String content) {
+        appendMessage(sender, content, false);
     }
 
     @Override
@@ -332,6 +331,10 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 }
             }
         });
+    }
+
+    public void receiveFile(FileWrapper file) {
+        onFileReceived(file);
     }
 
     private void appendMessage(String sender, String message, boolean isRight) {
@@ -370,16 +373,16 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         );
     }
 
-    public void updateConnectionStatus(boolean connected) {
-        onConnectionStatusChanged(connected);
-    }
-
     @Override
     public void onConnectionStatusChanged(boolean connected) {
         SwingUtilities.invokeLater(() -> {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setForeground(connected ? new Color(0x4CD964) : new Color(0xFF3B30));
         });
+    }
+
+    public void updateConnectionStatus(boolean connected) {
+        onConnectionStatusChanged(connected);
     }
 
     private void updateContactList(String[] clients) {

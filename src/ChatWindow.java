@@ -198,7 +198,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         // Send Button
         JButton sendButton = new JButton("➤");
         sendButton.setFont(new Font("SF Pro Display", Font.BOLD, 18));
-        sendButton.setForeground(new Color(0x8DE8E3));
+        sendButton.setForeground(ACCENT_COLOR);
         sendButton.setBorderPainted(false);
         sendButton.setContentAreaFilled(false);
         sendButton.setFocusPainted(false);

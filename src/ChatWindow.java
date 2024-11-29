@@ -5,7 +5,6 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.JTextComponent;
 
 public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private static final long serialVersionUID = 1L;
@@ -14,7 +13,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private JTextPane messageArea;
     private JTextField writeMessageField;
     private JTextField searchField;
-    private final ChatClient chatClient;
+    private ChatClient chatClient;
     private String username;
     private String targetUser;
     private Color myMessageColor = new Color(0x8DE8E3); // Light blue for sent messages
@@ -28,17 +27,18 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private static final Color TEXT_COLOR = new Color(0xFFFFFF);
     private boolean isMainWindow;
 
-    // Constructor for main chat window (from login)
-    public ChatWindow(String username) {
-        this.username = username;
-        this.isMainWindow = true;
-        this.messageHistory = new HashMap<>();
-        ChatManager.getInstance().initialize(username);
-        initializeMainUI();
-    }
-
     // Constructor for individual chat windows (from ChatManager)
     public ChatWindow(String username, String targetUser, ChatClient chatClient) {
+        this.username = username;
+        this.targetUser = targetUser;
+        this.chatClient = chatClient;
+        this.isMainWindow = false;
+        this.messageHistory = new HashMap<>();
+        initializeUI();
+    }
+
+    // Constructor for main chat window (from login)
+    public ChatWindow(String username) {
         this.username = username;
         this.targetUser = targetUser;
         this.chatClient = chatClient;

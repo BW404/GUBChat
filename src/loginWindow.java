@@ -119,10 +119,13 @@ public class loginWindow extends JFrame {
                 String enteredPassword = new String(passwordField.getPassword());
                 if (authenticate(enteredUsername, enteredPassword)) {
                     dispose();
-                    // Initialize ChatManager and open ContactsWindow
-                    ChatManager.getInstance().initialize(enteredUsername);
-                    ContactsWindow contactsWindow = new ContactsWindow();
-                    ChatManager.getInstance().setContactsWindow(contactsWindow);
+                    // Initialize ChatManager
+                    ChatManager chatManager = ChatManager.getInstance();
+                    chatManager.initialize(enteredUsername);
+                    
+                    // Create and show ContactsWindow
+                    ContactsWindow contactsWindow = new ContactsWindow(enteredUsername, chatManager.getChatClient());
+                    chatManager.setContactsWindow(contactsWindow);
                     contactsWindow.setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(loginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);

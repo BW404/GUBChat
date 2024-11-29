@@ -57,11 +57,11 @@ public class ChatWindow extends JFrame {
         JPanel searchPanel = new JPanel();
         searchPanel.setBackground(new Color(0x26272D));
         searchPanel.setLayout(new BorderLayout());
-        searchPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        searchPanel.setBorder(new EmptyBorder(10, 0, 10, 0));
 
         JTextField searchField = new JTextField();
         searchField.setPreferredSize(new Dimension(200, 30));
-        searchField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        searchField.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         searchField.setFont(new Font("Arial", Font.PLAIN, 14));
         searchField.setBackground(new Color(0xF0F0F0));
         searchField.setForeground(Color.BLACK);

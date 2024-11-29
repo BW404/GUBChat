@@ -284,6 +284,10 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         }
     }
 
+    public void receiveMessage(String sender, String content) {
+        appendMessage(sender, content, false);
+    }
+
     @Override
     public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
@@ -297,6 +301,10 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 appendMessage(sender, content, false);
             }
         });
+    }
+
+    public void receiveFile(FileWrapper file) {
+        onFileReceived(file);
     }
 
     @Override
@@ -359,6 +367,10 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             isRight ? "normal" : "bold",
             message
         );
+    }
+
+    public void updateConnectionStatus(boolean connected) {
+        onConnectionStatusChanged(connected);
     }
 
     @Override

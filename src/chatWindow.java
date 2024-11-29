@@ -94,7 +94,7 @@ public class ChatWindow extends JFrame {
         // Right Section: Chat Area
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
-        rightPanel.setBackground(new Color(0x1C1D22));
+        rightPanel.setBackground(new Color(0x084D44));
         rightPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         // Chat Header

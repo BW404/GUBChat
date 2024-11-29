@@ -299,7 +299,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         });
     }
 
-
     @Override
     public void onFileReceived(FileWrapper file) {
         SwingUtilities.invokeLater(() -> {

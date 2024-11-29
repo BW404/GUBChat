@@ -30,6 +30,8 @@ public class loginWindow extends JFrame {
         System.out.println("Login Window created"); // Debugging output
         this.setVisible(true); // Ensure the window is visible
         System.out.println("Login Window is now visible"); // Debugging output
+        this.setVisible(true); // Ensure the window is visible
+        System.out.println("Login Window is now visible"); // Debugging output
         this.setLayout(null);
         setLocationRelativeTo(null);
 

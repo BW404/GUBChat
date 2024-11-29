@@ -325,14 +325,3 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         }
     }
 }
-<environment_details>
-# VSCode Visible Files
-src/ChatWindow.java
-
-# VSCode Open Tabs
-src/ChatClient.java
-src/ChatServer.java
-src/loginWindow.java
-src/Main.java
-src/ChatWindow.java
-</environment_details>

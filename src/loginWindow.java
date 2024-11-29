@@ -83,7 +83,7 @@ public class loginWindow extends JFrame {
         loginButton = new JButton("Login"); // Fixed variable name
         loginButton.setBounds(100, 330, 200, 30);
         loginButton.setFont(new Font("Comic Sans MS Bold", Font.PLAIN, 16));
-        loginButton.setForeground(Color.WHITE);
+        loginButton.setForeground(Color.BLACK);
         loginButton.setBackground(new Color(0X40a366));
         loginButton.setFocusPainted(false);
         this.add(loginButton);

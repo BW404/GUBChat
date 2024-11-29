@@ -66,14 +66,16 @@ public class ChatServer {
                 username = (String) in.readObject();
                 ChatServer.addClient(username, this);
                 System.out.println(username + " has joined.");
-                out.writeObject("Welcome " + username + "! Use '@username message' to chat privately.");
+                out.writeObject("Welcome " + username + "! To chat privately, start your message with the username of the person you want to message.");
 
                 Object message;
                 while ((message = in.readObject()) != null) {
                     if (message instanceof String) {
                         String textMessage = (String) message;
-                        if (textMessage.startsWith("@")) {
-                            handlePrivateMessage(textMessage);
+                        // Check if message starts with a username for private messaging
+                        String[] parts = textMessage.split(" ", 2);
+                        if (parts.length > 1 && clientHandlers.containsKey(parts[0])) {
+                            handlePrivateMessage(parts[0] + " " + parts[1]);
                         }
                     } else if (message instanceof FileWrapper) {
                         handleFile((FileWrapper) message);
@@ -93,10 +95,10 @@ public class ChatServer {
         }
 
         private void handlePrivateMessage(String textMessage) throws IOException {
-            int spaceIndex = textMessage.indexOf(" ");
-            if (spaceIndex > 0) {
-                String targetUsername = textMessage.substring(1, spaceIndex);
-                String privateMessage = textMessage.substring(spaceIndex + 1);
+            String[] parts = textMessage.split(" ", 2);
+            if (parts.length == 2) {
+                String targetUsername = parts[0];
+                String privateMessage = parts[1];
                 ClientHandler targetHandler = ChatServer.getClientHandler(targetUsername);
                 if (targetHandler != null) {
                     targetHandler.sendMessage("Private from " + username + ": " + privateMessage);

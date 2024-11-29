@@ -123,7 +123,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             if (!e.getValueIsAdjusting()) {
                 String selectedUser = contactList.getSelectedValue();
                 if (selectedUser != null) {
-                    writeMessageField.setText("@" + selectedUser + " ");
+                    writeMessageField.setText(selectedUser + " ");
                     writeMessageField.requestFocus();
                     writeMessageField.setCaretPosition(writeMessageField.getText().length());
                 }

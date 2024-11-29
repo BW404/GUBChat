@@ -14,7 +14,7 @@ class ChatBubblePanel extends JPanel {
     public ChatBubblePanel(String message, Color backgroundColor) {
         this.message = message;
         this.backgroundColor = backgroundColor;
-        setOpaque(false); // Make the panel transparent
+        setOpaque(false);
     }
 
     @Override
@@ -22,34 +22,49 @@ class ChatBubblePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(backgroundColor);
-        g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15)); // Rounded rectangle
+        g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15));
         g2d.setColor(Color.WHITE);
-        g2d.drawString(message, 10, 20); // Draw the message
+        g2d.drawString(message, 10, 20);
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(200, 50); // Set a preferred size for the bubble
+        return new Dimension(200, 50);
     }
 }
 
-public class ChatWindow extends JFrame {
-
+public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private JList<String> contactList;
     private DefaultListModel<String> contactListModel;
     private JTextPane messageArea;
     private JTextField writeMessageField;
+    private ChatClient chatClient;
+    private String username;
+    private Color myMessageColor = new Color(0x168AFF);
+    private Color otherMessageColor = new Color(0xFF6070);
+    private JLabel connectionStatus;
 
-    public ChatWindow() {
-        setTitle("Chat Application");
+    public ChatWindow(String username) {
+        this.username = username;
+        initializeUI();
+        initializeClient();
+    }
+
+    private void initializeClient() {
+        chatClient = new ChatClient(username, this);
+        chatClient.connect();
+    }
+
+    private void initializeUI() {
+        setTitle("Chat Application - " + username);
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        setLocationRelativeTo(null);  // Center the window
+        setLocationRelativeTo(null);
 
         // Left Section: Contact List
         JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(new Color(0x26272D)); // Light grey background
+        leftPanel.setBackground(new Color(0x26272D));
         leftPanel.setLayout(new BorderLayout());
         leftPanel.setPreferredSize(new Dimension(300, getHeight()));
 
@@ -68,24 +83,24 @@ public class ChatWindow extends JFrame {
         searchField.setText("Search");
         searchPanel.add(searchField, BorderLayout.CENTER);
 
+        // Connection Status
+        connectionStatus = new JLabel("Connecting...");
+        connectionStatus.setForeground(Color.YELLOW);
+        connectionStatus.setHorizontalAlignment(SwingConstants.CENTER);
+        searchPanel.add(connectionStatus, BorderLayout.SOUTH);
+
         leftPanel.add(searchPanel, BorderLayout.NORTH);
 
         // Contact List
         contactListModel = new DefaultListModel<>();
-        contactListModel.addElement("John Doe");
-        contactListModel.addElement("Jane Smith");
-        contactListModel.addElement("Alice Johnson");
         contactList = new JList<>(contactListModel);
         contactList.setBackground(new Color(0x1C1D22));
         contactList.setForeground(Color.WHITE);
         contactList.setSelectionBackground(new Color(0xD0D0D0));
         contactList.setSelectionForeground(Color.WHITE);
         contactList.setFont(new Font("Roboto", Font.PLAIN, 14));
-
-        // Set a custom cell renderer for the contact list
         contactList.setCellRenderer(new CustomListCellRenderer());
 
-        // Add the contact list to a scroll pane
         JScrollPane contactScrollPane = new JScrollPane(contactList);
         leftPanel.add(contactScrollPane, BorderLayout.CENTER);
 
@@ -104,7 +119,7 @@ public class ChatWindow extends JFrame {
         chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
         chatHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel chatHeaderLabel = new JLabel("Chat with John Doe"); // Should get the name from the chat name
+        JLabel chatHeaderLabel = new JLabel("Chat Room");
         chatHeaderLabel.setForeground(Color.WHITE);
         chatHeaderLabel.setFont(new Font("Roboto", Font.BOLD, 16));
         chatHeader.add(chatHeaderLabel, BorderLayout.CENTER);
@@ -115,20 +130,10 @@ public class ChatWindow extends JFrame {
         messageArea.setContentType("text/html");
         messageArea.setEditable(false);
         messageArea.setBackground(new Color(0x141416));
-        messageArea.setForeground(Color.WHITE);
-        messageArea.setFont(new Font("Lucida Handwriting", Font.PLAIN, 18));
+        messageArea.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+        messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
-
-        // Red and Blue are the colors of the chat bubbles
-        Color red = new Color(0xFF6070);
-        Color blue = new Color(0x168AFF);
-
-        // Add some dummy chat messages
-        appendMessage("John Doe", "Hi there!", false, red); 
-        appendMessage("You", "Hello! How are you?", true, blue); 
-        appendMessage("John Doe", "I'm good, thanks! How about you?", false, red);
-        appendMessage("You", "I'm doing well, thank you.", true, blue);
 
         // Message Input Field
         JPanel messageInputPanel = new JPanel();
@@ -144,15 +149,37 @@ public class ChatWindow extends JFrame {
         writeMessageField.setForeground(Color.BLACK);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
 
-        JButton sendButton = new JButton(new ImageIcon("src/img/send.png")); // send button icon
+        JButton sendButton = new JButton(new ImageIcon("src/img/send.png"));
         sendButton.setBackground(new Color(0x128C7E));
         sendButton.setForeground(Color.WHITE);
         sendButton.setFont(new Font("Arial", Font.BOLD, 14));
+        sendButton.addActionListener(e -> sendMessage());
         messageInputPanel.add(sendButton, BorderLayout.EAST);
 
-        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
+        // Add enter key listener to write message field
+        writeMessageField.addActionListener(e -> sendMessage());
 
+        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
         add(rightPanel, BorderLayout.CENTER);
+
+        // Add window listener to handle disconnection
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (chatClient != null) {
+                    chatClient.disconnect();
+                }
+            }
+        });
+    }
+
+    private void sendMessage() {
+        String message = writeMessageField.getText().trim();
+        if (!message.isEmpty() && chatClient != null && chatClient.isConnected()) {
+            chatClient.sendMessage(message);
+            appendMessage("You", message, true, myMessageColor);
+            writeMessageField.setText("");
+        }
     }
 
     private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
@@ -171,59 +198,83 @@ public class ChatWindow extends JFrame {
             HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
             HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
             kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
+            
+            // Auto-scroll to bottom
+            messageArea.setCaretPosition(messageArea.getDocument().getLength());
         } catch (BadLocationException | IOException e) {
             JOptionPane.showMessageDialog(this, "Error appending message: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // ChatClient.MessageListener Implementation
+    @Override
+    public void onMessageReceived(String message) {
+        SwingUtilities.invokeLater(() -> {
+            if (message.startsWith("Welcome") || message.contains("has joined") || message.contains("is not online")) {
+                // System message
+                appendMessage("System", message, false, new Color(0x808080));
+            } else if (message.startsWith("Private from")) {
+                // Private message
+                appendMessage("Private", message, false, otherMessageColor);
+            } else {
+                // Regular message
+                appendMessage("Other", message, false, otherMessageColor);
+            }
+        });
+    }
+
+    @Override
+    public void onFileReceived(FileWrapper file) {
+        SwingUtilities.invokeLater(() -> {
+            appendMessage("System", "Received file: " + file.getFilename(), false, new Color(0x808080));
+            // Handle file saving
+            try {
+                java.io.File savedFile = new java.io.File("received_" + file.getFilename());
+                try (FileOutputStream fos = new FileOutputStream(savedFile)) {
+                    fos.write(file.getContent());
+                }
+                appendMessage("System", "File saved as: " + savedFile.getName(), false, new Color(0x808080));
+            } catch (IOException e) {
+                appendMessage("System", "Error saving file: " + e.getMessage(), false, new Color(0xFF0000));
+            }
+        });
+    }
+
+    @Override
+    public void onConnectionStatusChanged(boolean connected) {
+        SwingUtilities.invokeLater(() -> {
+            if (connected) {
+                connectionStatus.setText("Connected");
+                connectionStatus.setForeground(Color.GREEN);
+            } else {
+                connectionStatus.setText("Disconnected");
+                connectionStatus.setForeground(Color.RED);
+            }
+        });
+    }
+
     // Custom List Cell Renderer
     class CustomListCellRenderer extends DefaultListCellRenderer {
         @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            label.setOpaque(true); // Make sure the label is opaque to show the background color
+            label.setOpaque(true);
 
-            // Set background color based on selection state
             if (isSelected) {
-                label.setBackground(new Color(0xD0D0D0)); // Background color for selected items
-                label.setForeground(Color.BLACK); // Set text color for selected items
+                label.setBackground(new Color(0xD0D0D0));
+                label.setForeground(Color.BLACK);
             } else {
-                label.setBackground(new Color(0x2C2D32)); // Background color for non-selected items
-                label.setForeground(Color.WHITE); // Set text color for non-selected items
+                label.setBackground(new Color(0x2C2D32));
+                label.setForeground(Color.WHITE);
             }
 
-            // Set a visible border
             label.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY, 1), // Outer border
-                BorderFactory.createEmptyBorder(20, 30, 20, 5) // Inner padding
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                BorderFactory.createEmptyBorder(20, 30, 20, 5)
             ));
             label.setHorizontalAlignment(SwingConstants.LEFT);
 
             return label;
         }
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ChatWindow chatWindow = new ChatWindow();
-            chatWindow.setVisible(true);
-        });
-    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

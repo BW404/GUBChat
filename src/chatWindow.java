@@ -119,7 +119,17 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         contactList.setCellRenderer(new CustomListCellRenderer());
         
         // Add selection listener to handle private messages
-        contactList.addListSelectionListener(e -> {
+contactList.addListSelectionListener(e -> {
+    if (!e.getValueIsAdjusting()) {
+        String selectedUser = contactList.getSelectedValue();
+        if (selectedUser != null) {
+            writeMessageField.setText(selectedUser + " ");
+            writeMessageField.requestFocus();
+            writeMessageField.setCaretPosition(writeMessageField.getText().length());
+            // Open a new chat window for the selected user
+            new ChatWindow(selectedUser); // Create a new ChatWindow instance for the selected user
+        }
+    }
             if (!e.getValueIsAdjusting()) {
                 String selectedUser = contactList.getSelectedValue();
                 if (selectedUser != null) {

@@ -44,8 +44,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         this.isMainWindow = false;
         this.messageHistory = new HashMap<>();
         initializeUI();
-        this.messageHistory = new HashMap<>();
-        initializeUI();
     }
 
     private void initializeMainUI() {

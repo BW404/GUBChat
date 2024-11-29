@@ -1,10 +1,10 @@
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private static final long serialVersionUID = 1L;
@@ -299,13 +299,9 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         });
     }
 
-    public void receiveMessage(String sender, String message) {
-        SwingUtilities.invokeLater(() -> {
-            appendMessage(sender, message, false);
-        });
-    }
 
-    public void receiveFile(FileWrapper file) {
+    @Override
+    public void onFileReceived(FileWrapper file) {
         SwingUtilities.invokeLater(() -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setSelectedFile(new File(file.getFilename()));
@@ -366,7 +362,8 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         );
     }
 
-    public void updateConnectionStatus(boolean connected) {
+    @Override
+    public void onConnectionStatusChanged(boolean connected) {
         SwingUtilities.invokeLater(() -> {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setForeground(connected ? new Color(0x4CD964) : new Color(0xFF3B30));

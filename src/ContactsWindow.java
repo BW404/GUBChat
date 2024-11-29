@@ -1,9 +1,8 @@
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class ContactsWindow extends JFrame {
+public class ContactsWindow extends JFrame implements ChatClient.MessageListener {
     private JList<String> contactList;
     private DefaultListModel<String> contactListModel;
     private ChatClient chatClient;
@@ -65,29 +64,30 @@ public class ContactsWindow extends JFrame {
         JScrollPane scrollPane = new JScrollPane(contactList);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
+    }
 
-        // Set up message listener for contact list updates
-        chatClient.setMessageListener(new ChatClient.MessageListener() {
-            @Override
-            public void onMessageReceived(String message) {
-                if (message.startsWith("ACTIVE_CLIENTS:")) {
-                    updateContactList(message.substring("ACTIVE_CLIENTS:".length()).split(","));
-                }
-            }
+    @Override
+    public void onMessageReceived(String message) {
+        if (message.startsWith("ACTIVE_CLIENTS:")) {
+            String[] clients = message.substring("ACTIVE_CLIENTS:".length()).split(",");
+            updateContactList(clients);
+        }
+    }
 
-            @Override
-            public void onFileReceived(FileWrapper file) {
-                // Handle file reception in chat windows
-            }
+    @Override
+    public void onFileReceived(FileWrapper file) {
+        // Files are handled in individual chat windows
+    }
 
-            @Override
-            public void onConnectionStatusChanged(boolean connected) {
-                updateConnectionStatus(connected);
-            }
+    @Override
+    public void onConnectionStatusChanged(boolean connected) {
+        SwingUtilities.invokeLater(() -> {
+            connectionStatus.setText(connected ? "Connected" : "Disconnected");
+            connectionStatus.setForeground(connected ? Color.GREEN : Color.RED);
         });
     }
 
-    public void updateContactList(String[] clients) {
+    private void updateContactList(String[] clients) {
         SwingUtilities.invokeLater(() -> {
             contactListModel.clear();
             for (String client : clients) {
@@ -95,13 +95,6 @@ public class ContactsWindow extends JFrame {
                     contactListModel.addElement(client);
                 }
             }
-        });
-    }
-
-    public void updateConnectionStatus(boolean connected) {
-        SwingUtilities.invokeLater(() -> {
-            connectionStatus.setText(connected ? "Connected" : "Disconnected");
-            connectionStatus.setForeground(connected ? Color.GREEN : Color.RED);
         });
     }
 

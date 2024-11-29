@@ -17,6 +17,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private JLabel connectionStatus;
     private JLabel selectedUserLabel;
     private Map<String, StringBuilder> messageHistory;
+    private static final int MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB limit
 
     public ChatWindow(String username) {
         this.username = username;
@@ -132,6 +133,15 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         writeMessageField.setForeground(Color.BLACK);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
 
+        // Add file attachment button
+        JButton attachButton = new JButton("📎");
+        attachButton.setBackground(new Color(0x128C7E));
+        attachButton.setForeground(Color.WHITE);
+        attachButton.setFont(new Font("Arial", Font.BOLD, 16));
+        attachButton.setToolTipText("Attach File");
+        attachButton.addActionListener(e -> selectAndSendFile());
+        messageInputPanel.add(attachButton, BorderLayout.WEST);
+
         JButton sendButton = new JButton(new ImageIcon("src/img/send.png"));
         sendButton.setBackground(new Color(0x128C7E));
         sendButton.setForeground(Color.WHITE);
@@ -144,6 +154,63 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
         rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
         add(rightPanel, BorderLayout.CENTER);
+    }
+
+    private void selectAndSendFile() {
+        if (selectedUser == null) {
+            JOptionPane.showMessageDialog(this, "Please select a user to send the file to", 
+                "No user selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+        
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            
+            // Check file size
+            if (selectedFile.length() > MAX_FILE_SIZE) {
+                JOptionPane.showMessageDialog(this, 
+                    "File size exceeds limit of 100MB", 
+                    "File too large", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Show progress dialog
+            JDialog progressDialog = new JDialog(this, "Sending File", true);
+            JProgressBar progressBar = new JProgressBar(0, 100);
+            progressBar.setStringPainted(true);
+            progressBar.setString("Preparing to send file...");
+            progressDialog.add(progressBar);
+            progressDialog.setSize(300, 75);
+            progressDialog.setLocationRelativeTo(this);
+
+            // Start file transfer in background
+            new Thread(() -> {
+                try {
+                    progressBar.setString("Sending file...");
+                    progressBar.setValue(50);
+                    chatClient.sendFile(selectedUser, selectedFile.getAbsolutePath());
+                    progressBar.setValue(100);
+                    progressBar.setString("File sent successfully!");
+                    appendMessage(selectedUser, "You", "Sent file: " + selectedFile.getName(), true);
+                    Thread.sleep(1000); // Show completion for 1 second
+                    SwingUtilities.invokeLater(() -> progressDialog.dispose());
+                } catch (Exception e) {
+                    SwingUtilities.invokeLater(() -> {
+                        progressDialog.dispose();
+                        JOptionPane.showMessageDialog(this, 
+                            "Error sending file: " + e.getMessage(), 
+                            "Error", 
+                            JOptionPane.ERROR_MESSAGE);
+                    });
+                }
+            }).start();
+
+            progressDialog.setVisible(true);
+        }
     }
 
     private void sendMessage() {
@@ -199,7 +266,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         }
     }
 
-    // ChatClient.MessageListener Implementation
     @Override
     public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
@@ -218,18 +284,25 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     @Override
     public void onFileReceived(FileWrapper file) {
         SwingUtilities.invokeLater(() -> {
-            try {
-                File savedFile = new File("received_" + file.getFilename());
-                try (FileOutputStream fos = new FileOutputStream(savedFile)) {
-                    fos.write(file.getContent());
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setSelectedFile(new File(file.getFilename()));
+            fileChooser.setDialogTitle("Save Received File");
+            
+            int result = fileChooser.showSaveDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File saveFile = fileChooser.getSelectedFile();
+                try {
+                    try (FileOutputStream fos = new FileOutputStream(saveFile)) {
+                        fos.write(file.getContent());
+                    }
+                    appendMessage(file.getRecipient(), "System", 
+                        "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
+                        false);
+                } catch (IOException e) {
+                    appendMessage(file.getRecipient(), "System", 
+                        "Error saving file: " + e.getMessage(), 
+                        false);
                 }
-                appendMessage(file.getRecipient(), "System", 
-                    "Received file: " + file.getFilename() + "\nSaved as: " + savedFile.getName(), 
-                    false);
-            } catch (IOException e) {
-                appendMessage(file.getRecipient(), "System", 
-                    "Error saving file: " + e.getMessage(), 
-                    false);
             }
         });
     }

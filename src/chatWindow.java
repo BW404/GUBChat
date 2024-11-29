@@ -23,34 +23,109 @@ public class ChatWindow extends JFrame {
     private static final Color DARK_BG = new Color(0x1C1C1E);
     private static final Color DARKER_BG = new Color(0x2C2C2E);
     private static final Color TEXT_COLOR = new Color(0xFFFFFF);
+    private boolean isMainWindow;
 
+    // Constructor for main chat window (from login)
+    public ChatWindow(String username) {
+        this.username = username;
+        this.isMainWindow = true;
+        this.messageHistory = new HashMap<>();
+        ChatManager.getInstance().initialize(username);
+        initializeMainUI();
+    }
+
+    // Constructor for individual chat windows (from ChatManager)
     public ChatWindow(String username, String targetUser, ChatClient chatClient) {
         this.username = username;
         this.targetUser = targetUser;
         this.chatClient = chatClient;
+        this.isMainWindow = false;
         this.messageHistory = new HashMap<>();
         initializeUI();
     }
 
+    private void initializeMainUI() {
+        setTitle("GUB Chat - " + username);
+        setSize(1200, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setLocationRelativeTo(null);
+        setBackground(DARK_BG);
+
+        // Left Section: Contact List
+        JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(DARKER_BG);
+        leftPanel.setLayout(new BorderLayout());
+        leftPanel.setPreferredSize(new Dimension(300, getHeight()));
+
+        // Search Panel
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.setBackground(DARKER_BG);
+        searchPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        searchField = new JTextField();
+        searchField.setBackground(DARK_BG);
+        searchField.setForeground(TEXT_COLOR);
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(DARK_BG),
+            BorderFactory.createEmptyBorder(8, 10, 8, 10)
+        ));
+        searchField.putClientProperty("JTextField.placeholderText", "Search");
+        searchPanel.add(searchField, BorderLayout.CENTER);
+        
+        leftPanel.add(searchPanel, BorderLayout.NORTH);
+
+        // Contact List
+        contactListModel = new DefaultListModel<>();
+        contactList = new JList<>(contactListModel);
+        contactList.setBackground(DARKER_BG);
+        contactList.setForeground(TEXT_COLOR);
+        contactList.setSelectionBackground(new Color(0x3A3A3C));
+        contactList.setSelectionForeground(TEXT_COLOR);
+        contactList.setFont(new Font("SF Pro Display", Font.PLAIN, 14));
+        contactList.setCellRenderer(new CustomListCellRenderer());
+        
+        contactList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedUser = contactList.getSelectedValue();
+                if (selectedUser != null) {
+                    ChatManager.getInstance().openChatWindow(selectedUser);
+                }
+            }
+        });
+
+        JScrollPane contactScrollPane = new JScrollPane(contactList);
+        contactScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        contactScrollPane.setBackground(DARKER_BG);
+        leftPanel.add(contactScrollPane, BorderLayout.CENTER);
+
+        add(leftPanel, BorderLayout.CENTER);
+
+        // Connection status
+        connectionStatus = new JLabel("Connecting...");
+        connectionStatus.setForeground(new Color(0x4CD964));
+        connectionStatus.setHorizontalAlignment(SwingConstants.RIGHT);
+        connectionStatus.setBorder(new EmptyBorder(10, 10, 10, 10));
+        leftPanel.add(connectionStatus, BorderLayout.SOUTH);
+    }
+
     private void initializeUI() {
         setTitle("Chat with " + targetUser);
-        setSize(1200, 800);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
         setBackground(DARK_BG);
 
-        // Right Section: Chat Area
-        JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new BorderLayout());
-        rightPanel.setBackground(DARK_BG);
-        rightPanel.setBorder(BorderFactory.createEmptyBorder());
+        // Chat Area
+        JPanel chatPanel = new JPanel();
+        chatPanel.setLayout(new BorderLayout());
+        chatPanel.setBackground(DARK_BG);
 
         // Chat Header
         JPanel chatHeader = new JPanel();
         chatHeader.setBackground(DARKER_BG);
         chatHeader.setLayout(new BorderLayout());
-        chatHeader.setPreferredSize(new Dimension(getWidth(), 60));
         chatHeader.setBorder(new EmptyBorder(10, 20, 10, 20));
 
         selectedUserLabel = new JLabel(targetUser);
@@ -63,7 +138,7 @@ public class ChatWindow extends JFrame {
         connectionStatus.setHorizontalAlignment(SwingConstants.RIGHT);
         chatHeader.add(connectionStatus, BorderLayout.EAST);
 
-        rightPanel.add(chatHeader, BorderLayout.NORTH);
+        chatPanel.add(chatHeader, BorderLayout.NORTH);
 
         // Message Area
         messageArea = new JTextPane();
@@ -76,7 +151,7 @@ public class ChatWindow extends JFrame {
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         messageScrollPane.setBorder(BorderFactory.createEmptyBorder());
         messageScrollPane.setBackground(DARK_BG);
-        rightPanel.add(messageScrollPane, BorderLayout.CENTER);
+        chatPanel.add(messageScrollPane, BorderLayout.CENTER);
 
         // Message Input Panel
         JPanel messageInputPanel = new JPanel();
@@ -133,18 +208,22 @@ public class ChatWindow extends JFrame {
 
         writeMessageField.addActionListener(e -> sendMessage());
 
-        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
-        add(rightPanel, BorderLayout.CENTER);
+        chatPanel.add(messageInputPanel, BorderLayout.SOUTH);
+        add(chatPanel, BorderLayout.CENTER);
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                ChatManager.getInstance().closeChatWindow(targetUser);
+                if (!isMainWindow) {
+                    ChatManager.getInstance().closeChatWindow(targetUser);
+                }
             }
         });
     }
 
     private void selectAndSendFile() {
+        if (isMainWindow) return;
+
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(this);
         
@@ -193,6 +272,8 @@ public class ChatWindow extends JFrame {
     }
 
     private void sendMessage() {
+        if (isMainWindow) return;
+
         String message = writeMessageField.getText().trim();
         if (!message.isEmpty() && chatClient != null && chatClient.isConnected()) {
             chatClient.sendMessage(targetUser + " " + message);
@@ -273,5 +354,19 @@ public class ChatWindow extends JFrame {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setForeground(connected ? new Color(0x4CD964) : new Color(0xFF3B30));
         });
+    }
+
+    private class CustomListCellRenderer extends DefaultListCellRenderer {
+        private static final long serialVersionUID = 1L;
+        
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x3A3A3C)),
+                BorderFactory.createEmptyBorder(12, 20, 12, 20)
+            ));
+            return label;
+        }
     }
 }

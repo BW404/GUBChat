@@ -97,10 +97,10 @@ public class ChatWindow extends JFrame {
         Color blue = new Color(0x168AFF);
 
         // Add some dummy chat messages
-        appendMessage("John Doe", "Hi there!", false, red); 
-        appendMessage("You", "Hello! How are you?", true, blue); 
-        appendMessage("John Doe", "I'm good, thanks! How about you?", false, red);
-        appendMessage("You", "I'm doing well, thank you.", true, blue);
+        // appendMessage("John Doe", "Hi there!", false, red); 
+        // appendMessage("You", "Hello! How are you?", true, blue); 
+        // appendMessage("John Doe", "I'm good, thanks! How about you?", false, red);
+        // appendMessage("You", "I'm doing well, thank you.", true, blue);
 
 
         // Message Input Field
@@ -128,6 +128,28 @@ public class ChatWindow extends JFrame {
                 if (!message.isEmpty()) {
                     chatClient.sendMessage(message); // Send message to ChatClient
                     writeMessageField.setText(""); // Clear the input field
+                }
+                
+                        }
+                    messageInputPanel.add(sendButton, BorderLayout.EAST);
+            
+                    add(messageInputPanel, BorderLayout.SOUTH);
+                }
+            
+                // Define the CustomListCellRenderer class
+                class CustomListCellRenderer extends DefaultListCellRenderer {
+                    @Override
+                    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                        if (isSelected) {
+                            component.setBackground(new Color(0xD0D0D0));
+                            component.setForeground(Color.BLACK);
+                        } else {
+                            component.setBackground(new Color(0x1C1D22));
+                            component.setForeground(Color.WHITE);
+                        }
+                        return component;
+                    }
                 }
             }
         });

@@ -22,18 +22,27 @@ public class ChatServer {
 
     public static synchronized void addClient(String username, ClientHandler handler) {
         clientHandlers.put(username, handler);
+        broadcastActiveClients();
     }
 
     public static synchronized void removeClient(String username) {
         clientHandlers.remove(username);
+        broadcastActiveClients();
     }
 
     public static synchronized ClientHandler getClientHandler(String username) {
         return clientHandlers.get(username);
     }
 
-    public static synchronized List<String> getConnectedClients() {
-        return new ArrayList<>(clientHandlers.keySet());
+    private static synchronized void broadcastActiveClients() {
+        String activeClients = "ACTIVE_CLIENTS:" + String.join(",", clientHandlers.keySet());
+        for (ClientHandler handler : clientHandlers.values()) {
+            try {
+                handler.sendMessage(activeClients);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     static class ClientHandler implements Runnable {

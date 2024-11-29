@@ -96,18 +96,45 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
         leftPanel.add(searchPanel, BorderLayout.NORTH);
 
+        // Contact List Panel
+        JPanel contactListPanel = new JPanel(new BorderLayout());
+        contactListPanel.setBackground(new Color(0x26272D));
+
+        // Contact Header
+        JLabel contactsHeader = new JLabel("Active Users");
+        contactsHeader.setForeground(Color.WHITE);
+        contactsHeader.setFont(new Font("Roboto", Font.BOLD, 16));
+        contactsHeader.setBorder(new EmptyBorder(10, 10, 10, 10));
+        contactsHeader.setHorizontalAlignment(SwingConstants.CENTER);
+        contactListPanel.add(contactsHeader, BorderLayout.NORTH);
+
         // Contact List
         contactListModel = new DefaultListModel<>();
         contactList = new JList<>(contactListModel);
         contactList.setBackground(new Color(0x1C1D22));
         contactList.setForeground(Color.WHITE);
-        contactList.setSelectionBackground(new Color(0xD0D0D0));
+        contactList.setSelectionBackground(new Color(0x168AFF));
         contactList.setSelectionForeground(Color.WHITE);
         contactList.setFont(new Font("Roboto", Font.PLAIN, 14));
         contactList.setCellRenderer(new CustomListCellRenderer());
+        
+        // Add selection listener to handle private messages
+        contactList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedUser = contactList.getSelectedValue();
+                if (selectedUser != null) {
+                    writeMessageField.setText("@" + selectedUser + " ");
+                    writeMessageField.requestFocus();
+                    writeMessageField.setCaretPosition(writeMessageField.getText().length());
+                }
+            }
+        });
 
         JScrollPane contactScrollPane = new JScrollPane(contactList);
-        leftPanel.add(contactScrollPane, BorderLayout.CENTER);
+        contactScrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        contactListPanel.add(contactScrollPane, BorderLayout.CENTER);
+
+        leftPanel.add(contactListPanel, BorderLayout.CENTER);
 
         add(leftPanel, BorderLayout.WEST);
 
@@ -215,19 +242,16 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     @Override
     public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
-            if (message.startsWith("Welcome") || message.contains("has joined") || message.contains("is not online")) {
+            if (message.startsWith("ACTIVE_CLIENTS:")) {
+                // Update contact list
+                String[] clients = message.substring("ACTIVE_CLIENTS:".length()).split(",");
+                updateContactList(clients);
+            } else if (message.startsWith("Welcome") || message.contains("has joined") || message.contains("is not online")) {
                 // System message
                 appendMessage("System", message, false, new Color(0x808080));
             } else if (message.startsWith("Private from")) {
                 // Private message
                 appendMessage("Private", message, false, otherMessageColor);
-            } else if (message.startsWith("CLIENT_LIST:")) {
-                // Update contact list
-                String[] clients = message.substring("CLIENT_LIST:".length()).split(",");
-                contactListModel.clear();
-                for (String client : clients) {
-                    contactListModel.addElement(client.trim());
-                }
             } else {
                 // Regular message
                 appendMessage("Other", message, false, otherMessageColor);
@@ -266,6 +290,15 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     }
 
     // Custom List Cell Renderer
+    private void updateContactList(String[] clients) {
+        contactListModel.clear();
+        for (String client : clients) {
+            if (!client.equals(username)) {  // Don't show current user in the list
+                contactListModel.addElement(client);
+            }
+        }
+    }
+
     class CustomListCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

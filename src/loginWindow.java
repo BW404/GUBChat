@@ -27,11 +27,8 @@ public class loginWindow extends JFrame {
         this.setSize(400, 500);
         this.getContentPane().setBackground(new Color(0X26272D));
         this.setResizable(false);
-        System.out.println("Login Window created"); // Debugging output
-        this.setVisible(true); // Ensure the window is visible
-        System.out.println("Login Window is now visible"); // Debugging output
+        System.out.println("Login Window");
         this.setLayout(null);
-        System.out.println("Login Window setup complete"); // Debugging output
         setLocationRelativeTo(null);
 
         // GUB logo

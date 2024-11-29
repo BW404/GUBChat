@@ -23,7 +23,7 @@ public class ChatClient {
         this.messageListener = listener;
     }
 
-    public void connect() { 
+    public void connect() {
         try {
             socket = new Socket(SERVER_ADDRESS, PORT);
             out = new ObjectOutputStream(socket.getOutputStream());
@@ -37,8 +37,6 @@ public class ChatClient {
             isConnected = true;
             messageListener.onConnectionStatusChanged(true);
             
-            // Request the list of connected clients
-            out.writeObject("GET_CLIENTS");
         } catch (IOException e) {
             e.printStackTrace();
             messageListener.onConnectionStatusChanged(false);

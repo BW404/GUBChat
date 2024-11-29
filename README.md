@@ -1,7 +1,7 @@
 # Chat Application
 
 ## Description
-This project is a chat application that allows users to communicate in real-time. It consists of a server and client architecture, enabling multiple users to connect and chat with each other.
+This project is a chat application that allows users to communicate in real-time. It consists of a server and client architecture, enabling multiple users to connect and chat with each other. Righ now this chat application is connected to my own server which is hosted on a Raspberry pi.
 
 ## Installation Instructions
 1. Clone the repository:

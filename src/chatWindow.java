@@ -4,7 +4,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class ChatWindow extends JFrame implements ChatClient.MessageListener {
+public class chatWindow extends JFrame implements ChatClient.MessageListener {
+    private static final long serialVersionUID = 1L;
     private JList<String> contactList;
     private DefaultListModel<String> contactListModel;
     private JTextPane messageArea;

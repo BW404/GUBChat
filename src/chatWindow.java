@@ -47,6 +47,125 @@ public class ChatWindow extends JFrame {
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);  // Center the window
 
+
+        // Message Input Field
+        JPanel messageInputPanel = new JPanel();
+        messageInputPanel.setLayout(new BorderLayout());
+        messageInputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        messageInputPanel.setBackground(new Color(0x26272D));
+
+        writeMessageField = new JTextField();
+        writeMessageField.setPreferredSize(new Dimension(200, 30));
+        writeMessageField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        writeMessageField.setFont(new Font("Arial", Font.PLAIN, 14));
+        writeMessageField.setBackground(new Color(0xE0E0E0));
+        writeMessageField.setForeground(Color.BLACK);
+        messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
+
+        JButton sendButton = new JButton(new ImageIcon("src/img/send.png")); // send button icon
+        sendButton.setBackground(new Color(0x128C7E));
+        sendButton.setForeground(Color.WHITE);
+        sendButton.setFont(new Font("Arial", Font.BOLD, 14));
+        messageInputPanel.add(sendButton, BorderLayout.EAST);
+
+        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
+
+        add(rightPanel, BorderLayout.CENTER);
+    }
+
+    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
+        String alignment = isRight ? "right" : "left";
+        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
+        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
+        
+        String htmlMessage = String.format(
+            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
+            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
+            + "<b>%s:</b> %s</p></div>",
+            alignment, colorHex, paddingLeft, sender, message
+        );  
+    
+        try {
+            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
+            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
+            kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
+        } catch (BadLocationException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error appending message: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Custom List Cell Renderer
+    class CustomListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setOpaque(true); // Make sure the label is opaque to show the background color
+
+            // Set background color based on selection state
+            if (isSelected) {
+                label.setBackground(new Color(0xD0D0D0)); // Background color for selected items
+                label.setForeground(Color.BLACK); // Set text color for selected items
+            } else {
+                label.setBackground(new Color(0x2C2D32)); // Background color for non-selected items
+                label.setForeground(Color.WHITE); // Set text color for non-selected items
+            }
+
+            // Set a visible border
+            label.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1), // Outer border
+                BorderFactory.createEmptyBorder(20, 30, 20, 5) // Inner padding
+            ));
+            label.setHorizontalAlignment(SwingConstants.LEFT);
+
+            return label;
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            ChatWindow chatWindow = new ChatWindow();
+            chatWindow.setVisible(true);
+        });
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+public class ChatWindow extends JFrame {
+    private JList<String> contactList;
+    private DefaultListModel<String> contactListModel;
+    private JTextPane messageArea;
+    private JTextField writeMessageField;
+    private ChatClient chatClient; // Add ChatClient instance
+
+    public ChatWindow(ChatClient chatClient) {
+        this.chatClient = chatClient; // Initialize ChatClient
+        setTitle("Chat Application");
+        setSize(1200, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setLocationRelativeTo(null);  // Center the window
+
         // Left Section: Contact List
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(new Color(0x26272D)); // Light grey background
@@ -130,6 +249,7 @@ public class ChatWindow extends JFrame {
         appendMessage("John Doe", "I'm good, thanks! How about you?", false, red);
         appendMessage("You", "I'm doing well, thank you.", true, blue);
 
+
         // Message Input Field
         JPanel messageInputPanel = new JPanel();
         messageInputPanel.setLayout(new BorderLayout());
@@ -144,69 +264,28 @@ public class ChatWindow extends JFrame {
         writeMessageField.setForeground(Color.BLACK);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
 
-        JButton sendButton = new JButton(new ImageIcon("src/img/send.png")); // send button icon
+        JButton sendButton = new JButton("Send"); // Change to a simple text button for now
         sendButton.setBackground(new Color(0x128C7E));
         sendButton.setForeground(Color.WHITE);
         sendButton.setFont(new Font("Arial", Font.BOLD, 14));
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String message = writeMessageField.getText();
+                if (!message.isEmpty()) {
+                    chatClient.sendMessage(message); // Send message to ChatClient
+                    writeMessageField.setText(""); // Clear the input field
+                }
+            }
+        });
         messageInputPanel.add(sendButton, BorderLayout.EAST);
 
-        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
-
-        add(rightPanel, BorderLayout.CENTER);
+        add(messageInputPanel, BorderLayout.SOUTH);
     }
 
-    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
-        String alignment = isRight ? "right" : "left";
-        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
-        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
-        
-        String htmlMessage = String.format(
-            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
-            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
-            + "<b>%s:</b> %s</p></div>",
-            alignment, colorHex, paddingLeft, sender, message
-        );  
-    
-        try {
-            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
-            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
-            kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
-        } catch (BadLocationException | IOException e) {
-            JOptionPane.showMessageDialog(this, "Error appending message: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // Custom List Cell Renderer
-    class CustomListCellRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            label.setOpaque(true); // Make sure the label is opaque to show the background color
-
-            // Set background color based on selection state
-            if (isSelected) {
-                label.setBackground(new Color(0xD0D0D0)); // Background color for selected items
-                label.setForeground(Color.BLACK); // Set text color for selected items
-            } else {
-                label.setBackground(new Color(0x2C2D32)); // Background color for non-selected items
-                label.setForeground(Color.WHITE); // Set text color for non-selected items
-            }
-
-            // Set a visible border
-            label.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY, 1), // Outer border
-                BorderFactory.createEmptyBorder(20, 30, 20, 5) // Inner padding
-            ));
-            label.setHorizontalAlignment(SwingConstants.LEFT);
-
-            return label;
-        }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ChatWindow chatWindow = new ChatWindow();
-            chatWindow.setVisible(true);
-        });
+    public void appendMessage(String sender, String message) {
+        // Append received messages to the message area
+        String htmlMessage = String.format("<b>%s:</b> %s<br>", sender, message);
+        messageArea.setText(messageArea.getText() + htmlMessage);
     }
 }

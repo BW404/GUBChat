@@ -3,8 +3,10 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-public class ChatWindow extends JFrame {
+public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private static final long serialVersionUID = 1L;
     private JList<String> contactList;
     private DefaultListModel<String> contactListModel;
@@ -211,9 +213,9 @@ public class ChatWindow extends JFrame {
         chatPanel.add(messageInputPanel, BorderLayout.SOUTH);
         add(chatPanel, BorderLayout.CENTER);
 
-        addWindowListener(new java.awt.event.WindowAdapter() {
+        addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+            public void windowClosing(WindowEvent windowEvent) {
                 if (!isMainWindow) {
                     ChatManager.getInstance().closeChatWindow(targetUser);
                 }
@@ -282,6 +284,21 @@ public class ChatWindow extends JFrame {
         }
     }
 
+    @Override
+    public void onMessageReceived(String message) {
+        SwingUtilities.invokeLater(() -> {
+            if (message.startsWith("ACTIVE_CLIENTS:")) {
+                String[] clients = message.substring("ACTIVE_CLIENTS:".length()).split(",");
+                updateContactList(clients);
+            } else if (message.contains(":")) {
+                String[] parts = message.split(":", 2);
+                String sender = parts[0].trim();
+                String content = parts[1].trim();
+                appendMessage(sender, content, false);
+            }
+        });
+    }
+
     public void receiveMessage(String sender, String message) {
         SwingUtilities.invokeLater(() -> {
             appendMessage(sender, message, false);
@@ -310,23 +327,6 @@ public class ChatWindow extends JFrame {
                         false);
                 }
             }
-        });
-    }
-
-    private void appendMessage(String sender, String message, boolean isRight) {
-        String htmlMessage = formatMessage(sender, message, isRight);
-        try {
-            String currentContent = messageArea.getText();
-            String newContent;
-            if (currentContent.toLowerCase().contains("</body>")) {
-                newContent = currentContent.replaceFirst("(?i)</body>", htmlMessage + "</body>");
-            } else {
-                newContent = "<html><body style='background-color: #1C1C1E; margin: 0; padding: 20px;'>" + 
-                           htmlMessage + "</body></html>";
-            }
-            messageArea.setText(newContent);
-            messageArea.setCaretPosition(messageArea.getDocument().getLength());
-        } catch (Exception e) {
             e.printStackTrace();
         }
     }

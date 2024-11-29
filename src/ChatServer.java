@@ -62,11 +62,11 @@ public class ChatServer {
                 out = new ObjectOutputStream(socket.getOutputStream());
 
                 // Register user
-                out.writeObject("Enter your username:");
+                // out.writeObject("Enter your username:");
                 username = (String) in.readObject();
                 ChatServer.addClient(username, this);
                 System.out.println(username + " has joined.");
-                out.writeObject("Welcome " + username + "! To chat privately, start your message with the username of the person you want to message.");
+                out.writeObject("Welcome " + username + "! ");
 
                 Object message;
                 while ((message = in.readObject()) != null) {

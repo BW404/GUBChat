@@ -16,7 +16,7 @@ public class loginWindow extends JFrame {
     // Declare the components
     private final JTextField usernameField;
     private final JPasswordField passwordField;
-    private final JButton loginButton; // Fixed typo in variable name
+    private final JButton loginButton;
     private final JButton signupButton;
 
     // Constructor
@@ -44,7 +44,7 @@ public class loginWindow extends JFrame {
         this.add(loginLabel);
 
         // Username Label
-        JLabel usernameLabel = new JLabel("Username:"); // Fixed typo in variable name
+        JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setBounds(150, 150, 300, 50);
         usernameLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
         usernameLabel.setForeground(Color.WHITE);
@@ -80,7 +80,7 @@ public class loginWindow extends JFrame {
         this.add(passwordField);
 
         // Login Button
-        loginButton = new JButton("Login"); // Fixed variable name
+        loginButton = new JButton("Login");
         loginButton.setBounds(100, 330, 200, 30);
         loginButton.setFont(new Font("Comic Sans MS Bold", Font.PLAIN, 16));
         loginButton.setForeground(Color.BLACK);
@@ -102,10 +102,8 @@ public class loginWindow extends JFrame {
         signupButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Close the login window
                 dispose();
-                // Open the signup window
-                new signupWindow(); 
+                new signupWindow();
             }
         });
 
@@ -113,33 +111,28 @@ public class loginWindow extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Authenticate the user
                 String enteredUsername = usernameField.getText();
                 String enteredPassword = new String(passwordField.getPassword());
                 if (authenticate(enteredUsername, enteredPassword)) {
-                    // Close the login window
                     dispose();
-                    // Open the chat window with the username
-                    ChatWindow chatWindow = new ChatWindow(enteredUsername);
-                    chatWindow.setVisible(true);
+                    // Initialize ChatManager with the logged-in user
+                    ChatManager.getInstance().initialize(enteredUsername);
+                    // Create a main contacts window
+                    ContactsWindow contactsWindow = new ContactsWindow(enteredUsername, ChatManager.getInstance().getChatClient());
+                    contactsWindow.setVisible(true);
                 } else {
-                    // Show an error message
                     JOptionPane.showMessageDialog(loginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        // Make the frame visible after adding components
         this.setVisible(true);
     }
 
     private boolean authenticate(String username, String password) {
         // Replace this with your actual authentication logic
-        // TODO: Authenticate the user
-        // TODO: It should connect ot teh server and check if the username and password are valid
-
-        return username.equals("taj") && password.equals("pass") || username.equals("admin") && password.equals("admin") || username.equals("manik") && password.equals("manik");
+        return username.equals("taj") && password.equals("pass") || 
+               username.equals("admin") && password.equals("admin") || 
+               username.equals("manik") && password.equals("manik");
     }
-
-
 }

@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -8,8 +7,6 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 public class ChatWindow extends JFrame {
-    private JList<String> contactList;
-    private DefaultListModel<String> contactListModel;
     private JTextPane messageArea;
     private JTextField writeMessageField;
     private ChatClient chatClient;
@@ -132,19 +129,6 @@ public class ChatWindow extends JFrame {
         SwingUtilities.invokeLater(() -> {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setForeground(connected ? Color.GREEN : Color.RED);
-        });
-    }
-
-    public void updateContactList(String[] clients) {
-        SwingUtilities.invokeLater(() -> {
-            if (contactListModel != null) {
-                contactListModel.clear();
-                for (String client : clients) {
-                    if (!client.equals(username)) {
-                        contactListModel.addElement(client);
-                    }
-                }
-            }
         });
     }
 

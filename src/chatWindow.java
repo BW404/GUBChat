@@ -185,7 +185,7 @@ public class ChatWindow extends JFrame {
 
             // Set background color based on selection state
             if (isSelected) {
-                label.setBackground(new Color(0x1CBB51)); // Background color for selected items
+                label.setBackground(new Color(0x34B7F1)); // Background color for selected items
                 label.setForeground(Color.BLACK); // Set text color for selected items
             } else {
                 label.setBackground(new Color(0x1BA995)); // Background color for non-selected items

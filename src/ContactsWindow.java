@@ -92,31 +92,7 @@ public class ContactsWindow extends JFrame implements ChatClient.MessageListener
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.setBackground(new Color(0x1C1D22));
         scrollPane.getVerticalScrollBar().setBackground(new Color(0x2C2D32));
-        scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
-            @Override
-            protected void configureScrollBarColors() {
-                this.thumbColor = new Color(0x128C7E);
-                this.trackColor = new Color(0x2C2D32);
-            }
-
-            @Override
-            protected JButton createDecreaseButton(int orientation) {
-                return createZeroButton();
-            }
-
-            @Override
-            protected JButton createIncreaseButton(int orientation) {
-                return createZeroButton();
-            }
-
-            private JButton createZeroButton() {
-                JButton button = new JButton();
-                button.setPreferredSize(new Dimension(0, 0));
-                button.setMinimumSize(new Dimension(0, 0));
-                button.setMaximumSize(new Dimension(0, 0));
-                return button;
-            }
-        });
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
 
         add(scrollPane, BorderLayout.CENTER);
 

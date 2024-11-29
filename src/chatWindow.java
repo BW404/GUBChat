@@ -159,7 +159,7 @@ public class ChatWindow extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                ChatClient chatClient = new ChatClient(ChatWindow); // Create a ChatClient instance with ChatWindow argument
+                ChatClient chatClient = new ChatClient(new ChatWindow(null)); // Create a ChatClient instance with ChatWindow argument
                 ChatWindow chatWindow = new ChatWindow(chatClient);
                 chatWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 chatWindow.setSize(400, 600);

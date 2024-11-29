@@ -32,6 +32,10 @@ public class ChatServer {
         return clientHandlers.get(username);
     }
 
+    public static synchronized List<String> getConnectedClients() {
+        return new ArrayList<>(clientHandlers.keySet());
+    }
+
     static class ClientHandler implements Runnable {
         private Socket socket;
         private ObjectOutputStream out;

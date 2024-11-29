@@ -1,18 +1,46 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.geom.RoundRectangle2D;
+import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+
+class ChatBubblePanel extends JPanel {
+    private String message;
+    private Color backgroundColor;
+
+    public ChatBubblePanel(String message, Color backgroundColor) {
+        this.message = message;
+        this.backgroundColor = backgroundColor;
+        setOpaque(false); // Make the panel transparent
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setColor(backgroundColor);
+        g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15)); // Rounded rectangle
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(message, 10, 20); // Draw the message
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(200, 50); // Set a preferred size for the bubble
+    }
+}
 
 public class ChatWindow extends JFrame {
+
     private JList<String> contactList;
     private DefaultListModel<String> contactListModel;
     private JTextPane messageArea;
     private JTextField writeMessageField;
-    private ChatClient chatClient; // Add ChatClient instance
 
-    public ChatWindow(ChatClient chatClient) {
-        this.chatClient = chatClient; // Initialize ChatClient
+    public ChatWindow() {
         setTitle("Chat Application");
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -97,11 +125,10 @@ public class ChatWindow extends JFrame {
         Color blue = new Color(0x168AFF);
 
         // Add some dummy chat messages
-        // appendMessage("John Doe", "Hi there!", false, red); 
-        // appendMessage("You", "Hello! How are you?", true, blue); 
-        // appendMessage("John Doe", "I'm good, thanks! How about you?", false, red);
-        // appendMessage("You", "I'm doing well, thank you.", true, blue);
-
+        appendMessage("John Doe", "Hi there!", false, red); 
+        appendMessage("You", "Hello! How are you?", true, blue); 
+        appendMessage("John Doe", "I'm good, thanks! How about you?", false, red);
+        appendMessage("You", "I'm doing well, thank you.", true, blue);
 
         // Message Input Field
         JPanel messageInputPanel = new JPanel();
@@ -117,54 +144,86 @@ public class ChatWindow extends JFrame {
         writeMessageField.setForeground(Color.BLACK);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
 
-        JButton sendButton = new JButton("Send"); // Change to a simple text button for now
+        JButton sendButton = new JButton(new ImageIcon("src/img/send.png")); // send button icon
         sendButton.setBackground(new Color(0x128C7E));
         sendButton.setForeground(Color.WHITE);
         sendButton.setFont(new Font("Arial", Font.BOLD, 14));
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String message = writeMessageField.getText();
-                if (!message.isEmpty()) {
-                    chatClient.sendMessage(message); // Send message to ChatClient
-                    writeMessageField.setText(""); // Clear the input field
-                }
-            }
-        });
         messageInputPanel.add(sendButton, BorderLayout.EAST);
-        add(messageInputPanel, BorderLayout.SOUTH);
+
+        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
+
+        add(rightPanel, BorderLayout.CENTER);
     }
 
-    // Define the CustomListCellRenderer class
-    class CustomListCellRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (isSelected) {
-                component.setBackground(new Color(0xD0D0D0));
-                component.setForeground(Color.BLACK);
-            } else {
-                component.setBackground(new Color(0x1C1D22));
-                component.setForeground(Color.WHITE);
-            }
-            return component;
+    private void appendMessage(String sender, String message, boolean isRight, Color backgroundColor) {
+        String alignment = isRight ? "right" : "left";
+        String colorHex = String.format("#%02x%02x%02x", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
+        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
+        
+        String htmlMessage = String.format(
+            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
+            + "<p style='background-color: %s; color: white; padding: 5px 15px; display: inline-block; max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
+            + "<b>%s:</b> %s</p></div>",
+            alignment, colorHex, paddingLeft, sender, message
+        );  
+    
+        try {
+            HTMLDocument doc = (HTMLDocument) messageArea.getDocument();
+            HTMLEditorKit kit = (HTMLEditorKit) messageArea.getEditorKit();
+            kit.insertHTML(doc, doc.getLength(), htmlMessage, 0, 0, null);
+        } catch (BadLocationException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error appending message: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public void appendMessage(String sender, String message) {
-        // Append received messages to the message area
-        String htmlMessage = String.format("<b>%s:</b> %s<br>", sender, message);
-        messageArea.setText(messageArea.getText() + htmlMessage);
-    }
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                ChatClient chatClient = new ChatClient(new ChatWindow(null)); // Create a ChatClient instance with ChatWindow argument
-                ChatWindow chatWindow = new ChatWindow(chatClient);
-                chatWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                chatWindow.setSize(400, 600);
-                chatWindow.setVisible(true);
+    // Custom List Cell Renderer
+    class CustomListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setOpaque(true); // Make sure the label is opaque to show the background color
+
+            // Set background color based on selection state
+            if (isSelected) {
+                label.setBackground(new Color(0xD0D0D0)); // Background color for selected items
+                label.setForeground(Color.BLACK); // Set text color for selected items
+            } else {
+                label.setBackground(new Color(0x2C2D32)); // Background color for non-selected items
+                label.setForeground(Color.WHITE); // Set text color for non-selected items
             }
+
+            // Set a visible border
+            label.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1), // Outer border
+                BorderFactory.createEmptyBorder(20, 30, 20, 5) // Inner padding
+            ));
+            label.setHorizontalAlignment(SwingConstants.LEFT);
+
+            return label;
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            ChatWindow chatWindow = new ChatWindow();
+            chatWindow.setVisible(true);
         });
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

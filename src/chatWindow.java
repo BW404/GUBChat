@@ -49,7 +49,7 @@ public class ChatWindow extends JFrame {
 
         // Left Section: Contact List
         JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(new Color(0xFF7629)); // Light grey background
+        leftPanel.setBackground(new Color(0x26272D)); // Light grey background
         leftPanel.setLayout(new BorderLayout());
         leftPanel.setPreferredSize(new Dimension(300, getHeight()));
 
@@ -76,9 +76,9 @@ public class ChatWindow extends JFrame {
         contactListModel.addElement("Jane Smith");
         contactListModel.addElement("Alice Johnson");
         contactList = new JList<>(contactListModel);
-        contactList.setBackground(new Color(0xFF7629));
+        contactList.setBackground(new Color(0x1C1D22));
         contactList.setForeground(Color.WHITE);
-        contactList.setSelectionBackground(new Color(0xFF7629));
+        contactList.setSelectionBackground(new Color(0xD0D0D0));
         contactList.setSelectionForeground(Color.WHITE);
         contactList.setFont(new Font("Roboto", Font.PLAIN, 14));
 
@@ -94,7 +94,7 @@ public class ChatWindow extends JFrame {
         // Right Section: Chat Area
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
-        rightPanel.setBackground(new Color(0x084D44));
+        rightPanel.setBackground(new Color(0x1C1D22));
         rightPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         // Chat Header
@@ -185,10 +185,10 @@ public class ChatWindow extends JFrame {
 
             // Set background color based on selection state
             if (isSelected) {
-                label.setBackground(new Color(0x34B7F1)); // Background color for selected items
+                label.setBackground(new Color(0xD0D0D0)); // Background color for selected items
                 label.setForeground(Color.BLACK); // Set text color for selected items
             } else {
-                label.setBackground(new Color(0x1BA995)); // Background color for non-selected items
+                label.setBackground(new Color(0x2C2D32)); // Background color for non-selected items
                 label.setForeground(Color.WHITE); // Set text color for non-selected items
             }
 

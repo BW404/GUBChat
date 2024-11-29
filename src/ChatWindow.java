@@ -16,16 +16,19 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private ChatClient chatClient;
     private String username;
     private String targetUser;
+    
+    // Colors
     private static final Color ACCENT_COLOR = new Color(0x007AFF); // iOS blue
     private Color myMessageColor = ACCENT_COLOR; // iOS blue for sent messages
     private Color otherMessageColor = new Color(0x2C2C2E); // Dark gray for received messages
+    private static final Color DARK_BG = new Color(0x1C1C1E);
+    private static final Color DARKER_BG = new Color(0x2C2C2E);
+    private static final Color TEXT_COLOR = new Color(0xFFFFFF);
+    
     private JLabel connectionStatus;
     private JLabel selectedUserLabel;
     private Map<String, StringBuilder> messageHistory;
     private static final int MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB limit
-    private static final Color DARK_BG = new Color(0x1C1C1E);
-    private static final Color DARKER_BG = new Color(0x2C2C2E);
-    private static final Color TEXT_COLOR = new Color(0xFFFFFF);
     private boolean isMainWindow;
 
     // Constructor for main chat window (from login)
@@ -146,9 +149,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         // Message Area
         messageArea = new JTextPane();
         messageArea.setContentType("text/html");
-        messageArea.setEditable(false);
-        messageArea.setBackground(DARK_BG);
-        messageArea.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
         messageArea.setFont(new Font("SF Pro Display", Font.PLAIN, 14));
         
         JScrollPane messageScrollPane = new JScrollPane(messageArea);

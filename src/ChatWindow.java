@@ -327,6 +327,23 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                         false);
                 }
             }
+        });
+    }
+
+    private void appendMessage(String sender, String message, boolean isRight) {
+        String htmlMessage = formatMessage(sender, message, isRight);
+        try {
+            String currentContent = messageArea.getText();
+            String newContent;
+            if (currentContent.toLowerCase().contains("</body>")) {
+                newContent = currentContent.replaceFirst("(?i)</body>", htmlMessage + "</body>");
+            } else {
+                newContent = "<html><body style='background-color: #1C1C1E; margin: 0; padding: 20px;'>" + 
+                           htmlMessage + "</body></html>";
+            }
+            messageArea.setText(newContent);
+            messageArea.setCaretPosition(messageArea.getDocument().getLength());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -353,6 +370,17 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         SwingUtilities.invokeLater(() -> {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setForeground(connected ? new Color(0x4CD964) : new Color(0xFF3B30));
+        });
+    }
+
+    private void updateContactList(String[] clients) {
+        SwingUtilities.invokeLater(() -> {
+            contactListModel.clear();
+            for (String client : clients) {
+                if (!client.equals(username)) {
+                    contactListModel.addElement(client);
+                }
+            }
         });
     }
 

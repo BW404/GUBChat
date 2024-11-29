@@ -6,6 +6,7 @@ public class ChatManager {
     private Map<String, ChatWindow> chatWindows;
     private ChatClient chatClient;
     private String currentUser;
+    private ContactsWindow contactsWindow;
 
     private ChatManager() {
         chatWindows = new HashMap<>();
@@ -37,13 +38,17 @@ public class ChatManager {
         }
     }
 
+    public void setContactsWindow(ContactsWindow window) {
+        this.contactsWindow = window;
+    }
+
     private class MainMessageListener implements ChatClient.MessageListener {
         @Override
         public void onMessageReceived(String message) {
             if (message.startsWith("ACTIVE_CLIENTS:")) {
-                // Update all chat windows with the new client list
-                for (ChatWindow window : chatWindows.values()) {
-                    window.updateContactList(message.substring("ACTIVE_CLIENTS:".length()).split(","));
+                // Update contacts window with the new client list
+                if (contactsWindow != null) {
+                    contactsWindow.onMessageReceived(message);
                 }
             } else if (message.contains(":")) {
                 // Handle private messages
@@ -78,6 +83,10 @@ public class ChatManager {
 
         @Override
         public void onConnectionStatusChanged(boolean connected) {
+            // Update connection status in all windows
+            if (contactsWindow != null) {
+                contactsWindow.onConnectionStatusChanged(connected);
+            }
             for (ChatWindow window : chatWindows.values()) {
                 window.updateConnectionStatus(connected);
             }

@@ -16,7 +16,8 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private ChatClient chatClient;
     private String username;
     private String targetUser;
-    private Color myMessageColor = new Color(0x8DE8E3); // Light blue for sent messages
+    private static final Color ACCENT_COLOR = new Color(0x007AFF); // iOS blue
+    private Color myMessageColor = ACCENT_COLOR; // iOS blue for sent messages
     private Color otherMessageColor = new Color(0x2C2C2E); // Dark gray for received messages
     private JLabel connectionStatus;
     private JLabel selectedUserLabel;

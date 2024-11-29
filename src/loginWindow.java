@@ -25,10 +25,10 @@ public class loginWindow extends JFrame {
         this.setSize(400, 500);
         this.getContentPane().setBackground(new Color(0x1C1D22));
         this.setResizable(false);
-        this.getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
         System.out.println("Login Window");
         this.setLayout(null);
         setLocationRelativeTo(null);
+        this.getRootPane().setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(0x128C7E)));
 
         // GUB logo
         JLabel gubLabel = new JLabel(new ImageIcon("src/img/gub_logo.png"));
@@ -119,9 +119,11 @@ public class loginWindow extends JFrame {
                 String enteredPassword = new String(passwordField.getPassword());
                 if (authenticate(enteredUsername, enteredPassword)) {
                     dispose();
-                    // Open the chat window directly
-                    ChatWindow chatWindow = new ChatWindow(enteredUsername);
-                    chatWindow.setVisible(true);
+                    // Initialize ChatManager and open ContactsWindow
+                    ChatManager.getInstance().initialize(enteredUsername);
+                    ContactsWindow contactsWindow = new ContactsWindow();
+                    ChatManager.getInstance().setContactsWindow(contactsWindow);
+                    contactsWindow.setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(loginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
                 }

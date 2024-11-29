@@ -20,11 +20,11 @@ This project is a chat application that allows users to communicate in real-time
 ## Usage
 1. Start the server:
    ```bash
-   java src.ChatServer
+   java ChatServer.java
    ```
-2. Start the client:
+2. Run the main file:
    ```bash
-   java src.ChatClient
+   java Main.java
    ```
 
 ## Contributing

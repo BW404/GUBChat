@@ -1,12 +1,11 @@
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.io.*;
-=======
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.*;
+import javax.swing.text.html.*;
 
 class ChatBubblePanel extends JPanel {
     private String message;
@@ -49,6 +48,11 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         this.username = username;
         initializeUI();
         initializeClient();
+    }
+
+    // Default constructor for backward compatibility
+    public ChatWindow() {
+        this("Anonymous");
     }
 
     private void initializeClient() {
@@ -164,9 +168,9 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         add(rightPanel, BorderLayout.CENTER);
 
         // Add window listener to handle disconnection
-        addWindowListener(new java.awt.event.WindowAdapter() {
+        addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+            public void windowClosing(WindowEvent windowEvent) {
                 if (chatClient != null) {
                     chatClient.disconnect();
                 }
@@ -230,7 +234,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             appendMessage("System", "Received file: " + file.getFilename(), false, new Color(0x808080));
             // Handle file saving
             try {
-                java.io.File savedFile = new java.io.File("received_" + file.getFilename());
+                File savedFile = new File("received_" + file.getFilename());
                 try (FileOutputStream fos = new FileOutputStream(savedFile)) {
                     fos.write(file.getContent());
                 }

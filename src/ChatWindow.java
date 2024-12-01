@@ -33,8 +33,12 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
     private void initializeUI() {
         setTitle("GUB Chat - " + username);
-        setSize(1200, 800);
-        setResizable(false);
+        setSize(900, 700);
+
+        // SEt maximum size 900x700
+
+
+        // setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
@@ -118,7 +122,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         messageArea.setEditable(false);
         messageArea.setBackground(new Color(0x141416));
         messageArea.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
-        messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        messageArea.setFont(new Font("Arial Unicode MS", Font.PLAIN, 14));
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         rightPanel.add(messageScrollPane, BorderLayout.CENTER);
 
@@ -131,29 +135,29 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         
         
         // Add file attachment button
-        JButton attachButton = new JButton("📎");
+        JButton attachButton = new JButton(new ImageIcon("src/img/attach.png")); //attach button image
         attachButton.setPreferredSize(new Dimension(40, 40));
-        attachButton.setBackground(new Color(0x128C7E));
-        attachButton.setForeground(Color.WHITE);
+        attachButton.setBackground(Color.WHITE);
+        // attachButton.setForeground(Color.WHITE);
         attachButton.setFont(new Font("Arial", Font.BOLD, 30));
         attachButton.setToolTipText("Attach File");
         attachButton.addActionListener(e -> selectAndSendFile());
         messageInputPanel.add(attachButton); // Place the file button
         
         // Add emoji button
-        JButton emojiButton = new JButton("😊");
+        JButton emojiButton = new JButton(new ImageIcon("src/img/emoji_icon.png")); //emoji button image
         emojiButton.setPreferredSize(new Dimension(40, 40));
-        emojiButton.setBackground(Color.BLACK);
-        emojiButton.setForeground(Color.BLACK);
-        emojiButton.setFont(new Font("Arial", Font.BOLD, 30));
+        emojiButton.setBackground(Color.WHITE);
+        // emojiButton.setForeground(Color.BLACK);
+        // emojiButton.setFont(new Font("Arial", Font.BOLD, 30));
         emojiButton.setToolTipText("Send Emoji");
         emojiButton.addActionListener(e -> openEmojiPicker());
         messageInputPanel.add(emojiButton); // Place the emoji button after the attach button
         
         writeMessageField = new JTextField();
-        writeMessageField.setPreferredSize(new Dimension(710, 35)); // Increase width for better visibility
+        writeMessageField.setPreferredSize(new Dimension(getWidth()-500, 35)); // Increase width for better visibility
         writeMessageField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        writeMessageField.setFont(new Font("Arial", Font.PLAIN, 16));
+        writeMessageField.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
         writeMessageField.setBackground(new Color(0xE0E0E0));
         writeMessageField.setForeground(Color.BLACK);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
@@ -161,11 +165,11 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
 
         // Add send button
-        JButton sendButton = new JButton("➤");
+        JButton sendButton = new JButton(new ImageIcon("src/img/send.png")); //send button image
         sendButton.setPreferredSize(new Dimension(40, 40));
-        sendButton.setBackground(Color.BLACK);
+        sendButton.setBackground(Color.WHITE);
+        // sendButton.setFont(new Font("Segoe UI Symbol", Font.BOLD, 30));
         sendButton.setForeground(new Color(0x168AFF));
-        sendButton.setFont(new Font("Arial", Font.BOLD, 30));
         sendButton.addActionListener(e -> sendMessage());
         messageInputPanel.add(sendButton); // Place the send button
 
@@ -233,7 +237,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     }
 
     private void openEmojiPicker() {
-        String[] emojis = {"😀", "😂", "😍", "😢", "😡", "👍", "👎", "🎉", "❤️", "😊"};
+        String[] emojis = {"😊", "😂", "😍", "😢", "😡", "👍", "👎", "🎉", "❤️", "😊"};
         String selectedEmoji = (String) JOptionPane.showInputDialog(this, 
             "Select an emoji:", 
             "Emoji Picker", 

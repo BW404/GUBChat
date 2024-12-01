@@ -119,7 +119,7 @@ public class signupWindow extends JFrame {
                 // Close the signup window
                 dispose();
                 // Open the login window
-                new loginWindow();
+                new LoginWindow();
             }
         });
 

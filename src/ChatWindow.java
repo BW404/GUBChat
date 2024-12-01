@@ -125,7 +125,16 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         messageInputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         messageInputPanel.setBackground(new Color(0x26272D));
 
-        writeMessageField = new JTextField();
+writeMessageField = new JTextField();
+JButton emojiButton = new JButton("😀");
+emojiButton.setToolTipText("Insert Emoji");
+emojiButton.addActionListener(e -> {
+    String emoji = JOptionPane.showInputDialog(this, "Enter Emoji:");
+    if (emoji != null && !emoji.isEmpty()) {
+        writeMessageField.setText(writeMessageField.getText() + emoji);
+    }
+});
+messageInputPanel.add(emojiButton, BorderLayout.EAST); // Adjusted position to EAST
         writeMessageField.setPreferredSize(new Dimension(200, 30));
         writeMessageField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         writeMessageField.setFont(new Font("Arial", Font.PLAIN, 14));

@@ -1,69 +1,77 @@
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
 
 public class ChatClient {
     private static final String SERVER_ADDRESS = "jalaluddintaj-58689.portmap.io";
     private static final int PORT = 58689;
+    
+    private Socket socket;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+    private String username;
+    private MessageListener messageListener;
+    private boolean isConnected = false;
 
-    public static void main(String[] args) {
-        try (Socket socket = new Socket(SERVER_ADDRESS, PORT)) {
-            System.out.println("Connected to the chat server.");
+    public interface MessageListener {
+        void onMessageReceived(String message);
+        void onFileReceived(FileWrapper file);
+        void onConnectionStatusChanged(boolean connected);
+    }
 
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+    public ChatClient(String username, MessageListener listener) {
+        this.username = username;
+        this.messageListener = listener;
+    }
 
-            Thread readThread = new Thread(() -> {
-                try {
-                    Object message;
-                    while ((message = in.readObject()) != null) {
-                        if (message instanceof String) {
-                            System.out.println((String) message);
-                        } else if (message instanceof FileWrapper) {
-                            saveFile((FileWrapper) message);
-                        }
-                    }
-                } catch (IOException | ClassNotFoundException e) {
-                    System.out.println("Connection closed.");
-                }
-            });
-
-            Thread writeThread = new Thread(() -> {
-                Scanner scanner = new Scanner(System.in);
-                try {
-                    System.out.println((String) in.readObject());
-                    String username = scanner.nextLine();
-                    out.writeObject(username);
-
-                    while (true) {
-                        String input = scanner.nextLine();
-                        if (input.startsWith("/sendfile")) {
-                            String[] parts = input.split(" ", 3);
-                            if (parts.length == 3) {
-                                sendFile(parts[1], parts[2], out);
-                            } else {
-                                System.out.println("Usage: /sendfile recipient filepath");
-                            }
-                        } else {
-                            out.writeObject(input);
-                        }
-                    }
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            });
-
-            readThread.start();
-            writeThread.start();
-
-            readThread.join();
-            writeThread.join();
-        } catch (IOException | InterruptedException e) {
+    public void connect() {
+        try {
+            socket = new Socket(SERVER_ADDRESS, PORT);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+            
+            // Start reading messages in a separate thread
+            new Thread(this::readMessages).start();
+            
+            // Send username to server
+            out.writeObject(username);
+            isConnected = true;
+            messageListener.onConnectionStatusChanged(true);
+            
+        } catch (IOException e) {
             e.printStackTrace();
+            messageListener.onConnectionStatusChanged(false);
         }
     }
 
-    private static void sendFile(String recipient, String filepath, ObjectOutputStream out) {
+    private void readMessages() {
+        try {
+            Object message;
+            while ((message = in.readObject()) != null) {
+                if (message instanceof String) {
+                    messageListener.onMessageReceived((String) message);
+                } else if (message instanceof FileWrapper) {
+                    messageListener.onFileReceived((FileWrapper) message);
+                }
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            isConnected = false;
+            messageListener.onConnectionStatusChanged(false);
+        }
+    }
+
+    public void sendMessage(String message) {
+        try {
+            if (isConnected && out != null) {
+                out.writeObject(message);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            isConnected = false;
+            messageListener.onConnectionStatusChanged(false);
+        }
+    }
+
+    public void sendFile(String recipient, String filepath) {
         try {
             File file = new File(filepath);
             byte[] content = new byte[(int) file.length()];
@@ -72,21 +80,24 @@ public class ChatClient {
             }
             FileWrapper fileWrapper = new FileWrapper(recipient, file.getName(), content);
             out.writeObject(fileWrapper);
-            System.out.println("File sent to " + recipient);
         } catch (IOException e) {
-            System.out.println("Error sending file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private static void saveFile(FileWrapper fileWrapper) {
+    public void disconnect() {
         try {
-            File file = new File("received_" + fileWrapper.getFilename());
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                fos.write(fileWrapper.getContent());
-            }
-            System.out.println("File received: " + file.getName());
+            isConnected = false;
+            if (socket != null) socket.close();
+            if (in != null) in.close();
+            if (out != null) out.close();
+            messageListener.onConnectionStatusChanged(false);
         } catch (IOException e) {
-            System.out.println("Error saving file: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 }

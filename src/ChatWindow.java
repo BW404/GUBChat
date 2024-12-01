@@ -34,6 +34,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private void initializeUI() {
         setTitle("GUB Chat - " + username);
         setSize(1200, 800);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
@@ -43,6 +44,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         leftPanel.setBackground(new Color(0x26272D));
         leftPanel.setLayout(new BorderLayout());
         leftPanel.setPreferredSize(new Dimension(300, getHeight()));
+        leftPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         // Contact Header
         JPanel contactHeader = new JPanel(new BorderLayout());
@@ -61,6 +63,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         contactHeader.add(connectionStatus, BorderLayout.EAST);
 
         leftPanel.add(contactHeader, BorderLayout.NORTH);
+        // leftPanel.setBorder(null);
 
         // Contact List
         contactListModel = new DefaultListModel<>();
@@ -123,45 +126,52 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         JPanel messageInputPanel = new JPanel();
         messageInputPanel.setLayout(new BorderLayout());
         messageInputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        messageInputPanel.setBackground(new Color(0x26272D));
-
-writeMessageField = new JTextField();
-JButton emojiButton = new JButton("😀");
-emojiButton.setToolTipText("Insert Emoji");
-emojiButton.addActionListener(e -> {
-    String emoji = JOptionPane.showInputDialog(this, "Enter Emoji:");
-    if (emoji != null && !emoji.isEmpty()) {
-        writeMessageField.setText(writeMessageField.getText() + emoji);
-    }
-});
-messageInputPanel.add(emojiButton, BorderLayout.EAST); // Adjusted position to EAST
-        writeMessageField.setPreferredSize(new Dimension(200, 30));
+        messageInputPanel.setBackground(new Color(0x26272D));       
+        messageInputPanel.setLayout(new FlowLayout(FlowLayout.LEFT));  
+        
+        
+        // Add file attachment button
+        JButton attachButton = new JButton("📎");
+        attachButton.setPreferredSize(new Dimension(40, 40));
+        attachButton.setBackground(new Color(0x128C7E));
+        attachButton.setForeground(Color.WHITE);
+        attachButton.setFont(new Font("Arial", Font.BOLD, 30));
+        attachButton.setToolTipText("Attach File");
+        attachButton.addActionListener(e -> selectAndSendFile());
+        messageInputPanel.add(attachButton); // Place the file button
+        
+        // Add emoji button
+        JButton emojiButton = new JButton("😊");
+        emojiButton.setPreferredSize(new Dimension(40, 40));
+        emojiButton.setBackground(Color.BLACK);
+        emojiButton.setForeground(Color.BLACK);
+        emojiButton.setFont(new Font("Arial", Font.BOLD, 30));
+        emojiButton.setToolTipText("Send Emoji");
+        emojiButton.addActionListener(e -> openEmojiPicker());
+        messageInputPanel.add(emojiButton); // Place the emoji button after the attach button
+        
+        writeMessageField = new JTextField();
+        writeMessageField.setPreferredSize(new Dimension(710, 35)); // Increase width for better visibility
         writeMessageField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        writeMessageField.setFont(new Font("Arial", Font.PLAIN, 14));
+        writeMessageField.setFont(new Font("Arial", Font.PLAIN, 16));
         writeMessageField.setBackground(new Color(0xE0E0E0));
         writeMessageField.setForeground(Color.BLACK);
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
+        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
 
-        // Add file attachment button
-        JButton attachButton = new JButton("📎");
-        attachButton.setBackground(new Color(0x128C7E));
-        attachButton.setForeground(Color.WHITE);
-        attachButton.setFont(new Font("Arial", Font.BOLD, 16));
-        attachButton.setToolTipText("Attach File");
-        attachButton.addActionListener(e -> selectAndSendFile());
-        messageInputPanel.add(attachButton, BorderLayout.WEST);
 
-        JButton sendButton = new JButton(new ImageIcon("src/img/send.png"));
-        sendButton.setBackground(new Color(0x128C7E));
-        sendButton.setForeground(Color.WHITE);
-        sendButton.setFont(new Font("Arial", Font.BOLD, 14));
+        // Add send button
+        JButton sendButton = new JButton("➤");
+        sendButton.setPreferredSize(new Dimension(40, 40));
+        sendButton.setBackground(Color.BLACK);
+        sendButton.setForeground(new Color(0x168AFF));
+        sendButton.setFont(new Font("Arial", Font.BOLD, 30));
         sendButton.addActionListener(e -> sendMessage());
-        messageInputPanel.add(sendButton, BorderLayout.EAST);
+        messageInputPanel.add(sendButton); // Place the send button
 
         // Add enter key listener to write message field
         writeMessageField.addActionListener(e -> sendMessage());
 
-        rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
         add(rightPanel, BorderLayout.CENTER);
     }
 
@@ -219,6 +229,21 @@ messageInputPanel.add(emojiButton, BorderLayout.EAST); // Adjusted position to E
             }).start();
 
             progressDialog.setVisible(true);
+        }
+    }
+
+    private void openEmojiPicker() {
+        String[] emojis = {"😀", "😂", "😍", "😢", "😡", "👍", "👎", "🎉", "❤️", "😊"};
+        String selectedEmoji = (String) JOptionPane.showInputDialog(this, 
+            "Select an emoji:", 
+            "Emoji Picker", 
+            JOptionPane.PLAIN_MESSAGE, 
+            null, 
+            emojis, 
+            emojis[0]);
+        
+        if (selectedEmoji != null) {
+            writeMessageField.setText(writeMessageField.getText() + selectedEmoji);
         }
     }
 

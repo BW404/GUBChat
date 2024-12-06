@@ -34,6 +34,16 @@ public class ChatServer {
         return clientHandlers.get(username);
     }
 
+    private static synchronized void broadcastMessage(String message) {
+        for (ClientHandler handler : clientHandlers.values()) {
+            try {
+                handler.sendMessage(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private static synchronized void broadcastActiveClients() {
         String activeClients = "ACTIVE_CLIENTS:" + String.join(",", clientHandlers.keySet());
         for (ClientHandler handler : clientHandlers.values()) {
@@ -72,10 +82,16 @@ public class ChatServer {
                 while ((message = in.readObject()) != null) {
                     if (message instanceof String) {
                         String textMessage = (String) message;
-                        // Check if message starts with a username for private messaging
-                        String[] parts = textMessage.split(" ", 2);
-                        if (parts.length > 1 && clientHandlers.containsKey(parts[0])) {
-                            handlePrivateMessage(parts[0] + " " + parts[1]);
+                        if (textMessage.startsWith("PUBLIC_GROUP: ")) {
+                            // Handle public group message
+                            String publicMessage = textMessage.substring("PUBLIC_GROUP: ".length());
+                            broadcastMessage("PUBLIC_GROUP " + username + ": " + publicMessage);
+                        } else {
+                            // Check if message starts with a username for private messaging
+                            String[] parts = textMessage.split(" ", 2);
+                            if (parts.length > 1 && clientHandlers.containsKey(parts[0])) {
+                                handlePrivateMessage(parts[0] + " " + parts[1]);
+                            }
                         }
                     } else if (message instanceof FileWrapper) {
                         handleFile((FileWrapper) message);

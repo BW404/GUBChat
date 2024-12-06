@@ -10,13 +10,13 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private JTextPane messageArea;
     private JTextField writeMessageField;
     private ChatClient chatClient;
-    private String username;
+    private final String username;
     private String selectedUser;
-    private Color myMessageColor = new Color(0x168AFF);
-    private Color otherMessageColor = new Color(0xFF6070);
+    private final Color myMessageColor = new Color(0x168AFF);
+    private final Color otherMessageColor = new Color(0xFF6070);
     private JLabel connectionStatus;
     private JLabel selectedUserLabel;
-    private Map<String, StringBuilder> messageHistory;
+    private final Map<String, StringBuilder> messageHistory;
     private static final int MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB limit
 
     public ChatWindow(String username) {
@@ -95,6 +95,19 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         contactScrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         leftPanel.add(contactScrollPane, BorderLayout.CENTER);
 
+       
+
+                // Add public group button to the left panel
+        JButton publicGroupButton = new JButton("Public Group");
+        publicGroupButton.setPreferredSize(new Dimension(100, 40));
+        publicGroupButton.setBackground(Color.WHITE);
+        publicGroupButton.setForeground(Color.BLACK);
+        publicGroupButton.addActionListener(e -> {
+            selectedUser = "Public Group"; // Set selected user to public group
+            selectedUserLabel.setText("Public Group");
+        });
+        leftPanel.add(publicGroupButton, BorderLayout.SOUTH); // Add the button to the left panel
+    
         add(leftPanel, BorderLayout.WEST);
 
         // Right Section: Chat Area
@@ -221,7 +234,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                     appendMessage(selectedUser, "You", "Sent file: " + selectedFile.getName(), true);
                     Thread.sleep(1000); // Show completion for 1 second
                     SwingUtilities.invokeLater(() -> progressDialog.dispose());
-                } catch (Exception e) {
+                } catch (InterruptedException e) {
                     SwingUtilities.invokeLater(() -> {
                         progressDialog.dispose();
                         JOptionPane.showMessageDialog(this, 
@@ -259,8 +272,16 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
 
         String message = writeMessageField.getText().trim();
         if (!message.isEmpty() && chatClient != null && chatClient.isConnected()) {
-            chatClient.sendMessage(selectedUser + " " + message);
-            appendMessage(selectedUser, "You", message, true);
+            if (selectedUser.equals("Public Group")) {
+                // Send as public message
+                chatClient.sendMessage(message, true);
+                // Show the message only in Public Group chat
+                appendMessage("Public Group", "You", message, true);
+            } else {
+                // Send as private message
+                chatClient.sendMessage(selectedUser + " " + message, false);
+                appendMessage(selectedUser, "You", message, true);
+            }
             writeMessageField.setText("");
         }
     }
@@ -300,7 +321,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             messageArea.setText("<html><body style='color: white;'>" + content + "</body></html>");
             messageArea.setCaretPosition(messageArea.getDocument().getLength());
         } catch (Exception e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -310,11 +331,26 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             if (message.startsWith("ACTIVE_CLIENTS:")) {
                 String[] clients = message.substring("ACTIVE_CLIENTS:".length()).split(",");
                 updateContactList(clients);
+            } else if (message.startsWith("PUBLIC_GROUP")) {
+                // Only show in Public Group chat
+                if (selectedUser != null && selectedUser.equals("Public Group")) {
+                    // Remove PUBLIC_GROUP prefix and parse message
+                    String cleanMessage = message.substring("PUBLIC_GROUP".length()).trim();
+                    String[] messageParts = cleanMessage.split(":", 2);
+                    if (messageParts.length == 2) {
+                        String messageSender = messageParts[0].trim();
+                        String messageContent = messageParts[1].trim();
+                        appendMessage("Public Group", messageSender, messageContent, false);
+                    }
+                }
             } else if (message.contains(":")) {
-                String[] parts = message.split(":", 2);
-                String sender = parts[0].trim();
-                String content = parts[1].trim();
-                appendMessage(sender, sender, content, false);
+                // Handle private messages
+                String[] messageParts = message.split(":", 2);
+                if (messageParts.length == 2) {
+                    String messageSender = messageParts[0].trim();
+                    String messageContent = messageParts[1].trim();
+                    appendMessage(messageSender, messageSender, messageContent, false);
+                }
             }
         });
     }
@@ -356,6 +392,9 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private void updateContactList(String[] clients) {
         SwingUtilities.invokeLater(() -> {
             contactListModel.clear();
+            // Add Public Group as the first option
+            contactListModel.addElement("Public Group");
+            // Add other clients
             for (String client : clients) {
                 if (!client.equals(username)) {
                     contactListModel.addElement(client);

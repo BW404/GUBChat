@@ -96,18 +96,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         leftPanel.add(contactScrollPane, BorderLayout.CENTER);
 
        
-
-                // Add public group button to the left panel
-        JButton publicGroupButton = new JButton("Public Group");
-        publicGroupButton.setPreferredSize(new Dimension(100, 40));
-        publicGroupButton.setBackground(Color.WHITE);
-        publicGroupButton.setForeground(Color.BLACK);
-        publicGroupButton.addActionListener(e -> {
-            selectedUser = "Public Group"; // Set selected user to public group
-            selectedUserLabel.setText("Public Group");
-        });
-        leftPanel.add(publicGroupButton, BorderLayout.SOUTH); // Add the button to the left panel
-    
         add(leftPanel, BorderLayout.WEST);
 
         // Right Section: Chat Area

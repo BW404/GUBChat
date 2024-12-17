@@ -34,11 +34,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     private void initializeUI() {
         setTitle("GUB Chat - " + username);
         setSize(900, 700);
-
-        // SEt maximum size 900x700
-
-
-        // setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
@@ -67,7 +62,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         contactHeader.add(connectionStatus, BorderLayout.EAST);
 
         leftPanel.add(contactHeader, BorderLayout.NORTH);
-        // leftPanel.setBorder(null);
 
         // Contact List
         contactListModel = new DefaultListModel<>();
@@ -95,7 +89,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         contactScrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         leftPanel.add(contactScrollPane, BorderLayout.CENTER);
 
-       
         add(leftPanel, BorderLayout.WEST);
 
         // Right Section: Chat Area
@@ -134,12 +127,10 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         messageInputPanel.setBackground(new Color(0x26272D));       
         messageInputPanel.setLayout(new FlowLayout(FlowLayout.LEFT));  
         
-        
         // Add file attachment button
         JButton attachButton = new JButton(new ImageIcon("src/img/attach.png")); //attach button image
         attachButton.setPreferredSize(new Dimension(40, 40));
         attachButton.setBackground(Color.WHITE);
-        // attachButton.setForeground(Color.WHITE);
         attachButton.setFont(new Font("Arial", Font.BOLD, 30));
         attachButton.setToolTipText("Attach File");
         attachButton.addActionListener(e -> selectAndSendFile());
@@ -149,8 +140,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         JButton emojiButton = new JButton(new ImageIcon("src/img/emoji_icon.png")); //emoji button image
         emojiButton.setPreferredSize(new Dimension(40, 40));
         emojiButton.setBackground(Color.WHITE);
-        // emojiButton.setForeground(Color.BLACK);
-        // emojiButton.setFont(new Font("Arial", Font.BOLD, 30));
         emojiButton.setToolTipText("Send Emoji");
         emojiButton.addActionListener(e -> openEmojiPicker());
         messageInputPanel.add(emojiButton); // Place the emoji button after the attach button
@@ -164,12 +153,10 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         messageInputPanel.add(writeMessageField, BorderLayout.CENTER);
         rightPanel.add(messageInputPanel, BorderLayout.SOUTH);
 
-
         // Add send button
         JButton sendButton = new JButton(new ImageIcon("src/img/send.png")); //send button image
         sendButton.setPreferredSize(new Dimension(40, 40));
         sendButton.setBackground(Color.WHITE);
-        // sendButton.setFont(new Font("Segoe UI Symbol", Font.BOLD, 30));
         sendButton.setForeground(new Color(0x168AFF));
         sendButton.addActionListener(e -> sendMessage());
         messageInputPanel.add(sendButton); // Place the send button
@@ -186,7 +173,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 "No user selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
+    
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(this);
         
@@ -201,7 +188,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                     JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
+    
             // Show progress dialog
             JDialog progressDialog = new JDialog(this, "Sending File", true);
             JProgressBar progressBar = new JProgressBar(0, 100);
@@ -210,7 +197,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             progressDialog.add(progressBar);
             progressDialog.setSize(300, 75);
             progressDialog.setLocationRelativeTo(this);
-
+    
             // Start file transfer in background
             new Thread(() -> {
                 try {
@@ -220,6 +207,9 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                     progressBar.setValue(100);
                     progressBar.setString("File sent successfully!");
                     appendMessage(selectedUser, "You", "Sent file: " + selectedFile.getName(), true);
+                    if (isImageFile(selectedFile.getName())) {
+                        appendImage(selectedUser, selectedFile.getAbsolutePath(), true);
+                    }
                     Thread.sleep(1000); // Show completion for 1 second
                     SwingUtilities.invokeLater(() -> progressDialog.dispose());
                 } catch (InterruptedException e) {
@@ -232,7 +222,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                     });
                 }
             }).start();
-
+    
             progressDialog.setVisible(true);
         }
     }
@@ -300,19 +290,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         );
     }
 
-    private void updateMessageArea(String user) {
-        StringBuilder history = messageHistory.get(user);
-        String content = history != null ? history.toString() : "";
-        
-        try {
-            messageArea.setContentType("text/html");
-            messageArea.setText("<html><body style='color: white;'>" + content + "</body></html>");
-            messageArea.setCaretPosition(messageArea.getDocument().getLength());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     @Override
     public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
@@ -346,27 +323,76 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     @Override
     public void onFileReceived(FileWrapper file) {
         SwingUtilities.invokeLater(() -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setSelectedFile(new File(file.getFilename()));
-            fileChooser.setDialogTitle("Save Received File");
-            
-            int result = fileChooser.showSaveDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File saveFile = fileChooser.getSelectedFile();
-                try {
-                    try (FileOutputStream fos = new FileOutputStream(saveFile)) {
-                        fos.write(file.getContent());
-                    }
-                    appendMessage(file.getRecipient(), "System", 
-                        "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
-                        false);
-                } catch (IOException e) {
-                    appendMessage(file.getRecipient(), "System", 
-                        "Error saving file: " + e.getMessage(), 
-                        false);
+            try {
+                File downloadsDir = new File("downloads");
+                if (!downloadsDir.exists()) {
+                    downloadsDir.mkdir();
                 }
+                File saveFile = new File(downloadsDir, file.getFilename());
+                try (FileOutputStream fos = new FileOutputStream(saveFile)) {
+                    fos.write(file.getContent());
+                }
+                appendMessage(file.getRecipient(), "System", 
+                    "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
+                    false);
+                // appendMessage("admin", "System", "Received file: " + file.getFilename(), false);
+                appendImage(file.getRecipient(), saveFile.getAbsolutePath(), false);
+
+                System.out.println("Receiver:" + file.getRecipient()+"\nSaved as:" + saveFile.getName() +"\nFile path:"+saveFile.getAbsolutePath());
+
+                if (isImageFile(file.getFilename())) {
+                    appendImage(file.getRecipient(), saveFile.getAbsolutePath(), false);
+                }
+            } catch (IOException e) {
+                appendMessage(file.getRecipient(), "System", 
+                    "Error saving file: " + e.getMessage(), 
+                    false);
             }
         });
+    }
+    
+    private boolean isImageFile(String filename) {
+        String[] imageExtensions = { "jpg", "jpeg", "png", "gif", "bmp" };
+        String fileExtension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
+        return Arrays.asList(imageExtensions).contains(fileExtension);
+    }
+    
+    private void appendImage(String chatUser, String imagePath, boolean isRight) {
+        StringBuilder history = messageHistory.computeIfAbsent(chatUser, k -> new StringBuilder());
+        String htmlImage = formatImage(imagePath, isRight);
+        history.append(htmlImage);
+    
+        if (chatUser.equals(selectedUser)) {
+            updateMessageArea(chatUser);
+        }
+    }
+    
+    private String formatImage(String imagePath, boolean isRight) {
+        String alignment = isRight ? "right" : "left";
+        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
+        
+        // Use URI to ensure proper formatting
+        String uriPath = new File(imagePath).toURI().toString();
+        
+        return String.format(
+            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
+            + "<img src='%s' style='max-width: 50%%; margin: auto; border-radius: 15px; %s' />"
+            + "</div>",
+            alignment, uriPath, paddingLeft
+        );
+    }
+
+    private void updateMessageArea(String user) {
+        StringBuilder history = messageHistory.get(user);
+        String content = history != null ? history.toString() : "";
+        
+        try {
+            messageArea.setContentType("text/html");
+            messageArea.setText("<html><body style='color: white;'>" + content + "</body></html>");
+            messageArea.setCaretPosition(messageArea.getDocument().getLength());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override

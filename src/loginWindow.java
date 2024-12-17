@@ -12,13 +12,13 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-public class loginWindow extends JFrame { // Changed class name to LoginWindow
+public class LoginWindow extends JFrame { // Changed class name to LoginWindow
     private final JTextField usernameField;
     private final JPasswordField passwordField;
     private final JButton loginButton;
     private final JButton signupButton;
 
-    public loginWindow() { // Updated constructor name to match class name
+    public LoginWindow() { // Updated constructor name to match class name
         this.setTitle("GUB Chat Login");
         this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage()); 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -117,7 +117,7 @@ public class loginWindow extends JFrame { // Changed class name to LoginWindow
                     ChatWindow chatWindow = new ChatWindow(enteredUsername);
                     chatWindow.setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(loginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(LoginWindow.this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

@@ -250,7 +250,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     }
 
     private void openEmojiPicker() {
-        String[] emojis = {"😊", "😂", "😍", "😢", "😡", "👍", "👎", "🎉", "❤️", "😊"};
+        String[] emojis = {"😊", "😂", "😍", "😢", "😡", "👍", "👎", "🎉", "❤", "😊"};
         String selectedEmoji = (String) JOptionPane.showInputDialog(this, 
             "Select an emoji:", 
             "Emoji Picker", 

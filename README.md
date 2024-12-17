@@ -6,7 +6,7 @@ This project is a chat application that allows users to communicate in real-time
 ## Installation Instructions
 1. Clone the repository:
    ```bash
-   git clone <https://github.com/BW404/GUBChat.git>
+   git clone https://github.com/BW404/GUBChat.git
    ```
 2. Navigate to the project directory:
    ```bash

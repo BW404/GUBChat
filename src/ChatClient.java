@@ -82,7 +82,7 @@ public class ChatClient {
             try (FileInputStream fis = new FileInputStream(file)) {
                 fis.read(content);
             }
-            FileWrapper fileWrapper = new FileWrapper(recipient, file.getName(), content);
+            FileWrapper fileWrapper = new FileWrapper(recipient, file.getName(), "description", content);
             out.writeObject(fileWrapper);
         } catch (IOException e) {
             e.printStackTrace();

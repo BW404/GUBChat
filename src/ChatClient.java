@@ -75,14 +75,14 @@ public class ChatClient {
         }
     }
 
-    public void sendFile(String recipient, String filepath) {
+    public void sendFile(String recipient, String sender, String filepath) {
         try {
             File file = new File(filepath);
             byte[] content = new byte[(int) file.length()];
             try (FileInputStream fis = new FileInputStream(file)) {
                 fis.read(content);
             }
-            FileWrapper fileWrapper = new FileWrapper(recipient, file.getName(), "description", content);
+            FileWrapper fileWrapper = new FileWrapper(recipient, sender,file.getName(), content);
             out.writeObject(fileWrapper);
         } catch (IOException e) {
             e.printStackTrace();

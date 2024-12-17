@@ -203,7 +203,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 try {
                     progressBar.setString("Sending file...");
                     progressBar.setValue(50);
-                    chatClient.sendFile(selectedUser, selectedFile.getAbsolutePath());
+                    chatClient.sendFile(selectedUser, username, selectedFile.getAbsolutePath());
                     progressBar.setValue(100);
                     progressBar.setString("File sent successfully!");
                     appendMessage(selectedUser, "You", "Sent file: " + selectedFile.getName(), true);
@@ -336,7 +336,7 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                     "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
                     false);
                 appendMessage(file.getSender(), "System", "Received file: " + file.getFilename(), false);
-                appendImage(file.getRecipient(), "downloads/"+file.getFilename(), false);
+                appendImage(file.getSender(), saveFile.getAbsolutePath(), false);
 
                 System.out.println("Receiver:" + file.getRecipient()+"\nSaved as:" + saveFile.getName() +"\nFile path:"+saveFile.getAbsolutePath());
 

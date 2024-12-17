@@ -404,13 +404,6 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
     }
     
 
-
-
-
-
-
-
-    
     private String formatImage(String imagePath, boolean isRight) {
         String alignment = isRight ? "right" : "left";
         String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";

@@ -336,12 +336,12 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                     "Received file: " + file.getFilename() + "\nSaved as: " + saveFile.getName(), 
                     false);
                 appendMessage(file.getSender(), "System", "Received file: " + file.getFilename(), false);
-                appendImage(file.getSender(), saveFile.getAbsolutePath(), false);
+                // appendImage(file.getSender(), saveFile.getAbsolutePath(), false);
 
                 System.out.println("Receiver:" + file.getRecipient()+"\nSaved as:" + saveFile.getName() +"\nFile path:"+saveFile.getAbsolutePath());
 
                 if (isImageFile(file.getFilename())) {
-                    appendImage(file.getRecipient(), saveFile.getAbsolutePath(), false);
+                    appendImage(file.getSender(), saveFile.getAbsolutePath(), false);
                 }
             } catch (IOException e) {
                 appendMessage(file.getRecipient(), "System", 

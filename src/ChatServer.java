@@ -34,8 +34,13 @@ public class ChatServer {
         return clientHandlers.get(username);
     }
 
-    private static synchronized void broadcastMessage(String message) {
-        for (ClientHandler handler : clientHandlers.values()) {
+    private static synchronized void broadcastMessage(String message, String senderUsername) {
+        for (Map.Entry<String, ClientHandler> entry : clientHandlers.entrySet()) {
+            String username = entry.getKey();
+            ClientHandler handler = entry.getValue();      
+        
+
+        if (!username.equals(senderUsername)) {
             try {
                 handler.sendMessage(message);
             } catch (IOException e) {
@@ -43,7 +48,7 @@ public class ChatServer {
             }
         }
     }
-
+    }
     private static synchronized void broadcastActiveClients() {
         String activeClients = "ACTIVE_CLIENTS:" + String.join(",", clientHandlers.keySet());
         for (ClientHandler handler : clientHandlers.values()) {
@@ -85,7 +90,7 @@ public class ChatServer {
                         if (textMessage.startsWith("PUBLIC_GROUP: ")) {
                             // Handle public group message
                             String publicMessage = textMessage.substring("PUBLIC_GROUP: ".length());
-                            broadcastMessage("PUBLIC_GROUP " + username + ": " + publicMessage);
+                            broadcastMessage("PUBLIC_GROUP " + username + ": " + publicMessage, username);
                         } else {
                             // Check if message starts with a username for private messaging
                             String[] parts = textMessage.split(" ", 2);

@@ -343,6 +343,9 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
                 if (isImageFile(file.getFilename())) {
                     appendImage(file.getSender(), saveFile.getAbsolutePath(), false);
                 }
+                if (isVideoFile(file.getFilename())) {
+                    appendVideo(file.getSender(), saveFile.getAbsolutePath(), false);
+                }
             } catch (IOException e) {
                 appendMessage(file.getRecipient(), "System", 
                     "Error saving file: " + e.getMessage(), 
@@ -356,6 +359,11 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
         String fileExtension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
         return Arrays.asList(imageExtensions).contains(fileExtension);
     }
+    private boolean isVideoFile(String filename) {
+        String[] videoExtensions = { "mp4", "avi", "mov", "wmv", "mkv" };
+        String fileExtension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
+        return Arrays.asList(videoExtensions).contains(fileExtension);
+    }
     
     private void appendImage(String chatUser, String imagePath, boolean isRight) {
         StringBuilder history = messageHistory.computeIfAbsent(chatUser, k -> new StringBuilder());
@@ -366,6 +374,42 @@ public class ChatWindow extends JFrame implements ChatClient.MessageListener {
             updateMessageArea(chatUser);
         }
     }
+
+
+    private void appendVideo(String chatUser, String videoPath, boolean isRight) {
+        StringBuilder history = messageHistory.computeIfAbsent(chatUser, k -> new StringBuilder());
+        String htmlVideo = formatVideo(videoPath, isRight);
+        history.append(htmlVideo);
+    
+        if (chatUser.equals(selectedUser)) {
+            updateMessageArea(chatUser);
+        }
+    }
+
+    private String formatVideo(String videoPath, boolean isRight) {
+        String alignment = isRight ? "right" : "left";
+        String paddingLeft = isRight ? "margin-left: 100px;" : "margin-right: 100px;";
+        
+        // Use URI to ensure proper formatting
+        String uriPath = new File(videoPath).toURI().toString();
+        
+        return String.format(
+            "<div style='text-align: %s; margin: 5px; border-radius: 10px;'>"
+            + "<video controls style='max-width: 50%%; margin: auto; border-radius: 15px; %s'>"
+            + "<source src='%s' type='video/mp4'>"
+            + "Your browser does not support the video tag."
+            + "</video></div>",
+            alignment, paddingLeft, uriPath
+        );
+    }
+    
+
+
+
+
+
+
+
     
     private String formatImage(String imagePath, boolean isRight) {
         String alignment = isRight ? "right" : "left";

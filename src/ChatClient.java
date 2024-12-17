@@ -4,6 +4,8 @@ import java.net.*;
 public class ChatClient {
     private static final String SERVER_ADDRESS = "jalaluddintaj-58689.portmap.io";
     private static final int PORT = 58689;
+    // private static final String SERVER_ADDRESS = "192.168.0.105";
+    // private static final int PORT = 5000;
     
     private Socket socket;
     private ObjectOutputStream out;

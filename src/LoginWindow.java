@@ -11,21 +11,23 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
-public class LoginWindow extends JFrame { // Changed class name to LoginWindow
+public class LoginWindow extends JFrame {
     private final JTextField usernameField;
     private final JPasswordField passwordField;
     private final JButton loginButton;
     private final JButton signupButton;
 
-    public LoginWindow() { // Updated constructor name to match class name
+    public LoginWindow() {
         this.setTitle("GUB Chat Login");
-        this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage()); 
+        this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 500);
         this.getContentPane().setBackground(new Color(0X26272D));
         this.setResizable(false);
-        System.out.println("Login Window");
         this.setLayout(null);
         setLocationRelativeTo(null);
 
@@ -103,7 +105,7 @@ public class LoginWindow extends JFrame { // Changed class name to LoginWindow
                 dispose();
                 new signupWindow(); // Updated to match the correct class name
             }
-        });
+         });
 
         // Add ActionListener to the login button
         loginButton.addActionListener(new ActionListener() {
@@ -126,10 +128,21 @@ public class LoginWindow extends JFrame { // Changed class name to LoginWindow
     }
 
     private boolean authenticate(String username, String password) {
-        // Replace this with your actual authentication logic
-        return username.equals("taj") && password.equals("pass") || 
-               username.equals("admin") && password.equals("admin") || 
-               username.equals("manik") && password.equals("manik")||
-               username.equals(username) && password.equals(password);
+        try (BufferedReader br = new BufferedReader(new FileReader("src/.data/user.csv"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 2) {
+                    String fileUsername = parts[0];
+                    String filePassword = parts[1];
+                    if (fileUsername.equals(username) && filePassword.equals(password)) {
+                        return true; // Authentication successful
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false; // Authentication failed
     }
 }

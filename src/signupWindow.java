@@ -10,6 +10,12 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.JOptionPane;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class signupWindow extends JFrame {
     private final JTextField usernameField;
@@ -19,7 +25,7 @@ public class signupWindow extends JFrame {
 
     public signupWindow() {
         this.setTitle("GUB Chat Signup");
-        this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage()); 
+        this.setIconImage(new ImageIcon("src/img/gub_logo.png").getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 500);
         this.setLayout(null);
@@ -28,7 +34,7 @@ public class signupWindow extends JFrame {
         this.getContentPane().setBackground(new Color(0X1C1D22));
 
         // gub logo
-        JLabel gubLabel = new JLabel(new ImageIcon("src\\img\\gub_logo.png"));
+        JLabel gubLabel = new JLabel(new ImageIcon("src/img/gub_logo.png"));
         gubLabel.setBounds(100, 15, 200, 100);
         this.add(gubLabel);
 
@@ -51,7 +57,7 @@ public class signupWindow extends JFrame {
         usernameField.setBounds(100, 200, 200, 30);
         usernameField.setFont(new Font("Dubai Bold", Font.PLAIN, 14));
         usernameField.setBorder(BorderFactory.createCompoundBorder(
-        usernameField.getBorder(), new EmptyBorder(5, 10, 5, 10) ));    
+                usernameField.getBorder(), new EmptyBorder(5, 10, 5, 10)));
         usernameField.setForeground(Color.WHITE);
         usernameField.setBackground(new Color(0X1C1D22));
         usernameField.setCaretColor(Color.WHITE);
@@ -69,13 +75,13 @@ public class signupWindow extends JFrame {
         passwordField.setBounds(100, 275, 200, 30);
         passwordField.setFont(new Font("Dubai Bold", Font.PLAIN, 20));
         passwordField.setBorder(BorderFactory.createCompoundBorder(
-        passwordField.getBorder(), new EmptyBorder(5, 10, 5, 10) ));
+                passwordField.getBorder(), new EmptyBorder(5, 10, 5, 10)));
         passwordField.setForeground(Color.WHITE);
         passwordField.setBackground(new Color(0X1C1D22));
         passwordField.setCaretColor(Color.WHITE);
         this.add(passwordField);
 
-        // Login Button
+        // Signup Button
         signupButton = new JButton("Signup");
         signupButton.setBounds(100, 330, 200, 30);
         signupButton.setFont(new Font("Comic Sans MS Bold", Font.PLAIN, 16));
@@ -83,7 +89,6 @@ public class signupWindow extends JFrame {
         signupButton.setBackground(new Color(0X3B5998));
         signupButton.setFocusPainted(false);
         this.add(signupButton);
-
 
         // "Already have an account? Login" Button
         loginButton = new JButton("Already have an account? Login");
@@ -95,20 +100,21 @@ public class signupWindow extends JFrame {
         loginButton.setFocusPainted(false);
         this.add(loginButton);
 
-
-       // Add ActionListener to the login button
+        // Add ActionListener to the signup button
         signupButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Authenticate the user
                 String enteredUsername = usernameField.getText();
                 String enteredPassword = new String(passwordField.getPassword());
-                // TODO: Add username and password in the databse 
-                // TODO: Check if the username already exists
-                // TODO: If the username already exists, show a message dialog "Username already exists"
-                // TODO: If the username doesn't exist, add the user to the database and show a message dialog "Signup successful"
-                // TODO: If the username and password are valid, close the signup window and open the login window
-                // TODO: If the username and password are invalid, show a message dialog "Invalid username or password"
+
+                if (usernameExists(enteredUsername)) {
+                    JOptionPane.showMessageDialog(null, "Username already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    addUserToDatabase(enteredUsername, enteredPassword);
+                    JOptionPane.showMessageDialog(null, "Signup successful", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                    new LoginWindow();
+                }
             }
         });
 
@@ -116,20 +122,37 @@ public class signupWindow extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Close the signup window
                 dispose();
-                // Open the login window
                 new LoginWindow();
             }
         });
 
-        // Revalidate and repaint the frame
         this.revalidate();
         this.repaint();
-
-        // Make the frame visible
         this.setVisible(true);
     }
 
+    private boolean usernameExists(String username) {
+        try (BufferedReader br = new BufferedReader(new FileReader("src/.data/user.csv"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equals(username)) {
+                    return true;
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
 
+    private void addUserToDatabase(String username, String password) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("src/.data/user.csv", true))) {
+            bw.write(username + "," + password);
+            bw.newLine();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
